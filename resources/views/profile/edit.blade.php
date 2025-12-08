@@ -20,6 +20,18 @@
                 </div>
             @endif
 
+            @if (session('status') === 'password-updated')
+                <div 
+                    x-data="{ show: true }"
+                    x-show="show"
+                    x-transition
+                    x-init="setTimeout(() => show = false, 2000)"
+                    class="bg-cinema-gold text-cinema-900 px-4 py-2 rounded shadow-lg fixed top-20 right-10 z-50 font-bold"
+                >
+                    {{ __('Password Updated Successfully.') }}
+                </div>
+            @endif
+
             <div class="p-4 sm:p-8 bg-cinema-800 shadow sm:rounded-lg border border-cinema-700">
                 <div class="max-w-xl">
                     <section>
@@ -94,7 +106,7 @@
                             </p>
                         </header>
 
-                        <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+                        <form method="post" action="{{ route('profile.password') }}" class="mt-6 space-y-6">
                             @csrf
                             @method('patch')
 

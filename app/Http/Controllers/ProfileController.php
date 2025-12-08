@@ -23,8 +23,6 @@ class ProfileController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'avatar' => ['nullable', 'image', 'max:1024'], // 1MB Max
-            'current_password' => ['nullable', 'required_with:new_password', 'current_password'],
-            'new_password' => ['nullable', 'min:8', 'confirmed'],
         ]);
 
         $user->name = $validated['name'];
@@ -37,12 +35,22 @@ class ProfileController extends Controller
             // For now, let's assume I might need to add it.
         }
 
-        if ($request->filled('new_password')) {
-            $user->password = Hash::make($validated['new_password']);
-        }
-
         $user->save();
 
         return back()->with('status', 'profile-updated');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $validated = $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'new_password' => ['required', 'min:8', 'confirmed'],
+        ]);
+
+        $request->user()->update([
+            'password' => Hash::make($validated['new_password']),
+        ]);
+
+        return back()->with('status', 'password-updated');
     }
 }
