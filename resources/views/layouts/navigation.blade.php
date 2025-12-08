@@ -15,6 +15,20 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('booking.index')" :active="request()->routeIs('booking.index')">
+                        {{ __('My Tickets') }}
+                    </x-nav-link>
+                    @if(auth()->user()->role === 'admin')
+                        <x-nav-link :href="route('admin.movies.index')" :active="request()->routeIs('admin.movies.*')">
+                            {{ __('Movies') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.studios.index')" :active="request()->routeIs('admin.studios.*')">
+                            {{ __('Studios') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.showtimes.index')" :active="request()->routeIs('admin.showtimes.*')">
+                            {{ __('Showtimes') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -38,7 +52,11 @@
                             <!-- Authentication -->
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-    
+
+                                <x-dropdown-link :href="route('profile.edit')">
+                                    {{ __('My Profile') }}
+                                </x-dropdown-link>
+
                                 <x-dropdown-link :href="route('logout')"
                                         onclick="event.preventDefault();
                                                     this.closest('form').submit();">

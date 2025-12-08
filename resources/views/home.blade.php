@@ -37,9 +37,31 @@
     <!-- Movie Grid -->
     <div id="movies" class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between mb-6 px-4 sm:px-0">
+            <div class="flex flex-col md:flex-row items-center justify-between mb-8 px-4 sm:px-0 gap-4">
                 <h3 class="text-2xl font-bold text-white border-l-4 border-cinema-gold pl-4">Now Playing</h3>
-                <a href="#" class="text-cinema-gold hover:text-white transition">View All &rarr;</a>
+                
+                <!-- Search & Filter -->
+                <form action="{{ route('home') }}" method="GET" class="flex w-full md:w-auto gap-2">
+                    <select name="genre" class="bg-cinema-800 text-white border-cinema-700 rounded focus:ring-cinema-gold focus:border-cinema-gold">
+                        <option value="">All Genres</option>
+                        @foreach($genres as $genre)
+                            <option value="{{ $genre }}" {{ request('genre') == $genre ? 'selected' : '' }}>{{ $genre }}</option>
+                        @endforeach
+                    </select>
+                    <div class="relative flex-grow md:flex-grow-0">
+                        <input type="text" name="search" placeholder="Search movies..." value="{{ request('search') }}" 
+                               class="w-full md:w-64 bg-cinema-800 text-white border-cinema-700 rounded pl-10 focus:ring-cinema-gold focus:border-cinema-gold">
+                        <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <button type="submit" class="bg-cinema-gold text-cinema-900 font-bold px-4 rounded hover:bg-yellow-400">
+                        Go
+                    </button>
+                    @if(request()->has('search') || request()->has('genre'))
+                         <a href="{{ route('home') }}" class="bg-gray-600 text-white font-bold px-4 py-2 rounded hover:bg-gray-500 justify-center flex items-center">
+                            Reset
+                        </a>
+                    @endif
+                </form>
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4 sm:px-0">
@@ -69,7 +91,7 @@
                             <p class="text-gray-400 text-sm mb-4 line-clamp-2">
                                 {{ $movie->description }}
                             </p>
-                            <a href="#" class="block w-full bg-cinema-gold text-cinema-900 font-bold text-center py-2 rounded hover:bg-yellow-400 transition shadow">
+                            <a href="{{ route('movie.show', $movie) }}" class="block w-full bg-cinema-gold text-cinema-900 font-bold text-center py-2 rounded hover:bg-yellow-400 transition shadow">
                                 Book Now
                             </a>
                         </div>
