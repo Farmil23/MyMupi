@@ -217,12 +217,16 @@
                 @forelse($movies as $movie)
                     @php
                         $posterUrl = null;
+
                         if (!empty($movie->poster)) {
-                            $posterUrl = Str::startsWith($movie->poster, 'http')
-                                ? $movie->poster
-                                : asset('storage/' . ltrim($movie->poster, '/'));
+                            if (\Illuminate\Support\Str::startsWith($movie->poster, ['http://', 'https://'])) {
+                                $posterUrl = $movie->poster;
+                            } elseif (\Illuminate\Support\Str::startsWith($movie->poster, 'storage/')) {
+                                $posterUrl = asset($movie->poster);
+                            } else {
+                                $posterUrl = asset('storage/' . ltrim($movie->poster, '/'));
+                            }
                         }
-                        $year = $movie->release_date ? \Carbon\Carbon::parse($movie->release_date)->format('Y') : null;
                     @endphp
 
                     <div class="group rounded-2xl overflow-hidden shadow-xl border border-cinema3-navy/10 bg-white hover:-translate-y-1 transition duration-300">
