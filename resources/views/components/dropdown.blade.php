@@ -1,5 +1,4 @@
-@props(['align' => 'right', 'width' => '48', 'contentClasses' => 'py-1 bg-cinema-800 border border-cinema-700'])
-
+@props(['align' => 'right', 'width' => '48', 'contentClasses' =>'py-2 bg-cinema3-navySoft border border-white/10'])
 @php
 switch ($align) {
     case 'left':
@@ -37,7 +36,7 @@ switch ($width) {
             style="display: none;"
             @click="open = false">
         <div class="rounded-md ring-1 ring-black ring-opacity-5 {{ $contentClasses }}">
-            {{ $content }}
+            {{ $content ?? $slot }}
         </div>
     </div>
 </div>
