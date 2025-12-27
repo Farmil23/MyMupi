@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-cinema3-navy border-b border-white/10">
+<nav x-data="{ open: false }" class="sticky top-0 z-50 bg-cinema3-navy/75 backdrop-blur-md border-b border-white/10 shadow-sm">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">

@@ -1,66 +1,108 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-cinema-gold leading-tight">
-            {{ __('Manage Studios') }}
-        </h2>
-    </x-slot>
-
-    <div class="py-12 bg-cinema-900 min-h-screen">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-white text-lg font-bold">List of Studios</h3>
-                <a href="{{ route('admin.studios.create') }}" class="bg-cinema-gold text-cinema-900 px-4 py-2 rounded font-bold hover:bg-yellow-400 transition">
-                    + Add New Studio
-                </a>
+        <div class="flex items-center justify-between gap-4">
+            <div>
+                <h2 class="font-semibold text-2xl text-cinema3-gold leading-tight">Studios</h2>
+                <p class="text-sm text-white/60">Manage studio layout and capacity.</p>
             </div>
 
-            <div class="bg-cinema-800 overflow-hidden shadow-sm sm:rounded-lg border border-cinema-700">
-                <div class="p-6 text-white border-b border-cinema-700">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="text-gray-400 border-b border-gray-700">
-                                <th class="py-3 px-4">Name</th>
-                                <th class="py-3 px-4">Layout (Rows x Seats)</th>
-                                <th class="py-3 px-4">Capacity</th>
-                                <th class="py-3 px-4">Actions</th>
+            <a href="{{ route('admin.studios.create') }}"
+               class="inline-flex items-center justify-center rounded-xl bg-cinema3-gold px-5 py-3 text-sm font-semibold text-cinema3-navy shadow-sm
+                      hover:bg-cinema3-goldDark focus:outline-none focus:ring-2 focus:ring-cinema3-gold/40 transition">
+                + Add New Studio
+            </a>
+        </div>
+    </x-slot>
+
+    <div class="py-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            @if(session('success'))
+                <div class="mb-6 rounded-2xl bg-cinema3-gold text-cinema3-navy px-5 py-4 font-semibold shadow-2xl">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            <div class="rounded-2xl bg-white/85 backdrop-blur-md border border-white/20 shadow-2xl overflow-hidden">
+                <div class="p-6 md:p-8 flex items-center justify-between gap-4">
+                    <h3 class="text-lg font-extrabold text-cinema3-navy">Studio List</h3>
+                    <span class="text-sm text-cinema3-navy/60">{{ $studios->total() }} total</span>
+                </div>
+
+                <div class="overflow-x-auto border-t border-white/30">
+                    <table class="min-w-full divide-y divide-cinema3-navy/10">
+                        <thead class="bg-cinema3-navy/95 text-white">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Name</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Rows</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Seats/Row</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Capacity</th>
+                                <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+
+                        <tbody class="divide-y divide-cinema3-navy/10 bg-white/60">
                             @forelse($studios as $studio)
-                                <tr class="border-b border-cinema-700 hover:bg-cinema-700 transition">
-                                    <td class="py-4 px-4 font-semibold text-white">{{ $studio->name }}</td>
-                                    <td class="py-4 px-4 text-gray-300">
-                                        {{ $studio->total_rows }} Rows x {{ $studio->seats_per_row }} Seats
+                                <tr class="hover:bg-white/80 transition">
+                                    <td class="px-6 py-4">
+                                        <div class="font-bold text-cinema3-navy">{{ $studio->name }}</div>
+                                        <div class="text-sm text-cinema3-navy/60">Layout: {{ $studio->total_rows }} × {{ $studio->seats_per_row }}</div>
                                     </td>
-                                    <td class="py-4 px-4 text-cinema-gold font-bold">
-                                        {{ $studio->capacity }} Seats
+
+                                    <td class="px-6 py-4 text-cinema3-navy/80">{{ $studio->total_rows }}</td>
+                                    <td class="px-6 py-4 text-cinema3-navy/80">{{ $studio->seats_per_row }}</td>
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex items-center rounded-full bg-cinema3-gold/20 text-cinema3-navy px-3 py-1 text-xs font-semibold border border-cinema3-gold/30">
+                                            {{ $studio->capacity }}
+                                        </span>
                                     </td>
-                                    <td class="py-4 px-4">
-                                        <div class="flex space-x-2">
-                                            <a href="{{ route('admin.studios.edit', $studio->id) }}" class="text-blue-400 hover:text-blue-300">Edit</a>
-                                            <form method="POST" action="{{ route('admin.studios.destroy', $studio->id) }}" onsubmit="return confirm('Are you sure?');">
+
+                                    <td class="px-6 py-4">
+                                        <div class="flex justify-end gap-2">
+                                            <a href="{{ route('admin.studios.edit', $studio->id) }}"
+                                               class="inline-flex items-center justify-center rounded-xl bg-white px-4 py-2 text-sm font-semibold text-cinema3-navy border border-cinema3-navy/10 shadow-sm
+                                                      hover:bg-white/80 focus:outline-none focus:ring-2 focus:ring-cinema3-gold/30 transition">
+                                                Edit
+                                            </a>
+
+                                            <form method="POST" action="{{ route('admin.studios.destroy', $studio->id) }}"
+                                                  onsubmit="return confirm('Delete this studio?');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="text-red-500 hover:text-red-400">Delete</button>
+                                                <button type="submit"
+                                                        class="inline-flex items-center justify-center rounded-xl bg-cinema3-navy px-4 py-2 text-sm font-semibold text-white shadow-sm
+                                                               hover:bg-cinema3-navySoft focus:outline-none focus:ring-2 focus:ring-cinema3-gold/30 transition">
+                                                    Delete
+                                                </button>
                                             </form>
                                         </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="py-8 text-center text-gray-500">
-                                        No studios found. Start by adding one!
+                                    <td colspan="5" class="px-6 py-14 text-center">
+                                        <div class="mx-auto h-14 w-14 rounded-2xl bg-cinema3-navy/10 border border-cinema3-navy/10 flex items-center justify-center text-2xl">
+                                            🏛️
+                                        </div>
+                                        <h3 class="mt-4 text-xl font-extrabold text-cinema3-navy">No studios yet</h3>
+                                        <p class="mt-1 text-cinema3-navy/60">Create a studio layout to schedule showtimes.</p>
+                                        <a href="{{ route('admin.studios.create') }}"
+                                           class="mt-6 inline-flex items-center justify-center rounded-xl bg-cinema3-gold px-6 py-3 text-sm font-semibold text-cinema3-navy shadow-sm
+                                                  hover:bg-cinema3-goldDark focus:outline-none focus:ring-2 focus:ring-cinema3-gold/40 transition">
+                                            + Add Studio
+                                        </a>
                                     </td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
-                    
-                    <div class="mt-4">
-                        {{ $studios->links() }}
-                    </div>
+                </div>
+
+                <div class="px-6 py-4 bg-white/60 border-t border-white/30">
+                    {{ $studios->links() }}
                 </div>
             </div>
+
         </div>
     </div>
 </x-app-layout>

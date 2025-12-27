@@ -1,96 +1,121 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-white leading-tight">
-
-            My Tickets
-        </h2>
+        <div class="flex flex-col gap-1">
+            <h2 class="font-semibold text-2xl text-cinema3-gold leading-tight">
+                My Tickets
+            </h2>
+            <p class="text-sm text-white/60">
+                Your booking history and e-tickets.
+            </p>
+        </div>
     </x-slot>
 
-    <div class="py-12 bg-cinema3-cream min-h-screen">
+    <div class="py-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg border border-cinema3-navy/10">
+
+            <div class="rounded-2xl bg-white/85 backdrop-blur-md border border-white/20 shadow-2xl overflow-hidden">
 
                 @if($bookings->count() > 0)
-                    <div class="p-6 md:p-8 space-y-6">
+                    <div class="p-6 md:p-8 space-y-4">
                         @foreach($bookings as $booking)
-                            <div class="bg-cinema-900 border border-cinema-700 rounded-lg p-6 flex flex-col md:flex-row gap-6 relative overflow-hidden group hover:border-cinema-gold transition duration-300">
-                                <!-- Movie Poster -->
-                                <div class="w-full md:w-32 shrink-0">
-                                    <img src="{{ Str::startsWith($booking->showtime->movie->poster, 'http') ? $booking->showtime->movie->poster : asset('storage/'.$booking->showtime->movie->poster) }}" 
-                                         class="w-full h-48 object-cover rounded shadow-lg group-hover:scale-105 transition duration-300">
-                                </div>
-                                
-                                <!-- Ticket Info -->
-                                <div class="flex-grow">
-                                    <div class="flex justify-between items-start">
-                                        <div>
-                                            <h3 class="text-2xl font-bold text-cinema3-navy mb-2">{{ $booking->showtime->movie->title }}</h3>
-                                            <div class="flex flex-wrap gap-2 mb-4">
-                                                <span class="bg-cinema3-cream text-cinema3-navy px-2 py-1 rounded text-xs uppercase tracking-wide border border-cinema3-navy/10">
-                                                    {{ $booking->showtime->studio->name }}
-                                                </span>
-                                                <span class="bg-cinema-gold text-cinema-900 px-2 py-1 rounded text-xs font-bold uppercase tracking-wide">
-                                                    {{ $booking->status }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div class="text-right">
-                                            <div class="text-gray-600 text-sm">Booking ID</div>
-                                            <div class="text-cinema3-navy font-mono font-bold">#{{ $booking->id }}</div>
+                            @php
+                                $showtime = $booking->showtime;
+                                $movie = optional($showtime)->movie;
+                                $studio = optional($showtime)->studio;
+                                $start = optional($showtime)->start_time;
+                                $poster = optional($movie)->poster_url;
+                            @endphp
+
+                            <div class="group rounded-2xl border border-cinema3-navy/10 bg-white/90 shadow-sm hover:shadow-md transition overflow-hidden">
+                                <div class="p-6 flex flex-col md:flex-row gap-6">
+                                    <!-- Poster -->
+                                    <div class="w-full md:w-40">
+                                        <div class="aspect-[2/3] rounded-xl overflow-hidden bg-cinema3-cream border border-cinema3-navy/10">
+                                            @if($poster)
+                                                <img src="{{ $poster }}" alt="Poster" class="w-full h-full object-cover">
+                                            @else
+                                                <div class="w-full h-full flex items-center justify-center text-cinema3-navy/40 font-semibold">
+                                                    No Poster
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
 
-                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-6">
-                                        <div>
-                                            <span class="block text-gray-600">Date</span>
-                                            <span class="block text-cinema3-navy font-bold">...</span>
-                                        </div>
-                                        <div>
-                                            <span class="block text-gray-500">Time</span>
-                                            <span class="block text-gray-300 font-bold">{{ \Carbon\Carbon::parse($booking->showtime->start_time)->format('H:i') }}</span>
-                                        </div>
-                                        <div>
-                                            <span class="block text-gray-500">Seats</span>
-                                            <span class="block text-gray-300 font-bold">
-                                                {{ $booking->bookingDetails->pluck('seat_number')->join(', ') }}
+                                    <!-- Info -->
+                                    <div class="flex-1">
+                                        <div class="flex items-start justify-between gap-4">
+                                            <div>
+                                                <h3 class="text-xl font-bold text-cinema3-navy">
+                                                    {{ optional($movie)->title ?? 'Movie' }}
+                                                </h3>
+                                                <p class="mt-1 text-sm text-cinema3-navy/60">
+                                                    {{ $start ? \Carbon\Carbon::parse($start)->format('D, d M Y • H:i') : '-' }}
+                                                    • Studio: {{ optional($studio)->name ?? '-' }}
+                                                </p>
+                                            </div>
+
+                                            <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold
+                                                {{ $booking->status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-cinema3-navy/10 text-cinema3-navy' }}">
+                                                {{ strtoupper($booking->status) }}
                                             </span>
                                         </div>
-                                        <div>
-                                            <span class="block text-gray-500">Total Price</span>
-                                            <span class="block text-cinema3-goldDark font-bold">IDR {{ number_format($booking->total_price, 0, ',', '.') }}</span>
-                                        </div>
-                                    </div>
 
-                                    <div class="flex justify-end">
-                                        <a href="{{ route('booking.success', $booking->id) }}"
-                                            class="inline-flex items-center gap-2 bg-cinema3-gold text-cinema3-navy font-bold py-2 px-6 rounded-lg hover:bg-cinema3-goldDark transition shadow">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                                    </svg>
-                                            View Ticket
-                                        </a>
+                                        <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                                            <div class="rounded-xl bg-white border border-cinema3-navy/10 p-3">
+                                                <div class="text-cinema3-navy/50 text-xs font-semibold">Seats</div>
+                                                <div class="mt-1 font-bold text-cinema3-navy">
+                                                    {{ $booking->bookingDetails->pluck('seat_number')->join(', ') }}
+                                                </div>
+                                            </div>
+
+                                            <div class="rounded-xl bg-white border border-cinema3-navy/10 p-3">
+                                                <div class="text-cinema3-navy/50 text-xs font-semibold">Total</div>
+                                                <div class="mt-1 font-bold text-cinema3-navy">
+                                                    Rp {{ number_format($booking->total_price, 0, ',', '.') }}
+                                                </div>
+                                            </div>
+
+                                            <div class="rounded-xl bg-white border border-cinema3-navy/10 p-3 flex items-center justify-between">
+                                                <div>
+                                                    <div class="text-cinema3-navy/50 text-xs font-semibold">E-Ticket</div>
+                                                    <div class="mt-1 text-sm text-cinema3-navy/70">View details</div>
+                                                </div>
+
+                                                <a href="{{ route('booking.success', $booking->id) }}"
+                                                   class="inline-flex items-center justify-center rounded-xl bg-cinema3-gold px-4 py-2 text-sm font-semibold text-cinema3-navy shadow-sm
+                                                          hover:bg-cinema3-goldDark focus:outline-none focus:ring-2 focus:ring-cinema3-gold/40 transition">
+                                                    View
+                                                </a>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         @endforeach
                     </div>
-                    <div class="p-4 border-t border-cinema-700">
+
+                    <div class="px-6 py-4 border-t border-white/30 bg-white/60">
                         {{ $bookings->links() }}
                     </div>
                 @else
                     <div class="p-12 text-center">
-                        <svg class="w-16 h-16 mx-auto text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path></svg>
-                        <h3 class="text-xl font-bold text-gray-400 mb-2">No Tickets Found</h3>
-                        <p class="text-gray-500 mb-6">You haven't booked any movies yet.</p>
-                        <a href="{{ route('home') }}" class="bg-cinema-gold text-cinema-900 font-bold py-3 px-8 rounded hover:bg-yellow-400 transition">
+                        <div class="mx-auto h-14 w-14 rounded-2xl bg-cinema3-navy/10 border border-cinema3-navy/10 flex items-center justify-center text-2xl">
+                            🎟️
+                        </div>
+
+                        <h3 class="mt-4 text-xl font-extrabold text-cinema3-navy">No Tickets Found</h3>
+                        <p class="mt-1 text-cinema3-navy/60">You haven't booked any movies yet.</p>
+
+                        <a href="{{ route('home') }}"
+                           class="mt-6 inline-flex items-center justify-center rounded-xl bg-cinema3-gold px-6 py-3 text-sm font-semibold text-cinema3-navy shadow-sm
+                                  hover:bg-cinema3-goldDark focus:outline-none focus:ring-2 focus:ring-cinema3-gold/40 transition">
                             Book a Movie Now
                         </a>
                     </div>
                 @endif
+
             </div>
+
         </div>
     </div>
 </x-app-layout>

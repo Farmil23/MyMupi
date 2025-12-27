@@ -1,8 +1,11 @@
 <x-guest-layout>
     <x-auth-card>
+
         <x-slot name="logo">
-            <a href="/">
-                <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
+            <a href="{{ route('home') }}" class="inline-flex items-center justify-center">
+                <div class="rounded-2xl border border-cinema3-navy/10 bg-white shadow-md p-3">
+                    <x-application-logo class="h-14 w-14 object-contain" />
+                </div>
             </a>
         </x-slot>
 
@@ -12,45 +15,73 @@
         <!-- Validation Errors -->
         <x-auth-validation-errors class="mb-4" :errors="$errors" />
 
+        <div class="mb-6 text-center">
+            <h1 class="text-2xl font-semibold text-cinema3-navy">Welcome Back</h1>
+            <p class="mt-1 text-sm text-cinema3-navy/60">Sign in to continue.</p>
+        </div>
+
         <form method="POST" action="{{ route('login') }}">
             @csrf
 
-            <!-- Email Address -->
+            <!-- Email -->
             <div>
-                <x-label for="email" :value="__('Email')" />
-
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
+                <x-label for="email" value="Email" />
+                <x-input id="email" class="block mt-1 w-full"
+                         type="email" name="email" :value="old('email')" required autofocus />
             </div>
 
-            <!-- Password -->
-            <div class="mt-4">
-                <x-label for="password" :value="__('Password')" />
+            <!-- Password (with eye) -->
+            <div class="mt-4" x-data="{ showPassword: false }">
+                <x-label for="password" value="Password" />
 
-                <x-input id="password" class="block mt-1 w-full"
-                                type="password"
-                                name="password"
-                                required autocomplete="current-password" />
+                <div class="relative mt-1">
+                    <x-input id="password" class="block w-full pr-12"
+                             x-bind:type="showPassword ? 'text' : 'password'"
+                             name="password" required autocomplete="current-password" />
+
+                    <button type="button"
+                            @click="showPassword = !showPassword"
+                            class="absolute inset-y-0 right-0 flex items-center pr-3 text-cinema3-navy/50 hover:text-cinema3-navy"
+                            aria-label="Toggle password visibility">
+                        <span x-show="!showPassword">👁️</span>
+                        <span x-show="showPassword" style="display:none;">🙈</span>
+                    </button>
+                </div>
             </div>
 
-            <!-- Remember Me -->
-            <div class="block mt-4">
+            <!-- Remember Me + Forgot -->
+            <div class="mt-4 flex items-center justify-between">
                 <label for="remember_me" class="inline-flex items-center">
-                    <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" name="remember">
-                    <span class="ml-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
+                    <input id="remember_me" type="checkbox"
+                           class="rounded border-gray-300 text-cinema3-gold shadow-sm focus:ring focus:ring-cinema3-gold/30"
+                           name="remember">
+                    <span class="ml-2 text-sm text-cinema3-navy/70">Remember me</span>
                 </label>
-            </div>
 
-            <div class="flex items-center justify-end mt-4">
                 @if (Route::has('password.request'))
-                    <a class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('password.request') }}">
-                        {{ __('Forgot your password?') }}
+                    <a class="text-sm font-medium text-cinema3-navy/70 hover:text-cinema3-navy underline"
+                       href="{{ route('password.request') }}">
+                        Forgot your password?
                     </a>
                 @endif
+            </div>
 
-                <x-button class="ml-3">
-                    {{ __('Log in') }}
+            <!-- Button -->
+            <div class="mt-6">
+                <x-button class="w-full justify-center py-3 text-base">
+                    Log In
                 </x-button>
             </div>
+
+            <!-- Create account link -->
+            @if (Route::has('register'))
+                <p class="mt-6 text-center text-sm text-cinema3-navy/70">
+                    Don’t have an account?
+                    <a href="{{ route('register') }}" class="font-semibold text-cinema3-gold hover:text-cinema3-goldDark underline">
+                        Create one!
+                    </a>
+                </p>
+            @endif
         </form>
     </x-auth-card>
 </x-guest-layout>
