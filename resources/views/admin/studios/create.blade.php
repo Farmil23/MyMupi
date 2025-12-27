@@ -1,55 +1,61 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-cinema-gold leading-tight">
-            {{ __('Add New Studio') }}
-        </h2>
+        <div>
+            <h2 class="font-semibold text-2xl text-cinema3-gold leading-tight">Add Studio</h2>
+            <p class="text-sm text-white/60">Create a new studio layout.</p>
+        </div>
     </x-slot>
 
-    <div class="py-12 bg-cinema-900 min-h-screen">
-        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-cinema-800 overflow-hidden shadow-2xl rounded-lg border border-cinema-700">
-                <div class="p-8">
-                    <form method="POST" action="{{ route('admin.studios.store') }}">
-                        @csrf
+    <div class="py-10">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
 
-                        <!-- Name -->
-                        <div class="mb-6">
-                            <label class="block text-gray-300 text-sm font-bold mb-2">Studio Name</label>
-                            <input type="text" name="name" value="{{ old('name') }}" required
-                                class="w-full bg-cinema-700 text-white border-none rounded px-4 py-3 focus:ring-2 focus:ring-cinema-gold" 
-                                placeholder="e.g. Studio 1, IMAX, Gold Class">
-                            @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+            <div class="rounded-2xl bg-white/85 backdrop-blur-md border border-white/20 shadow-2xl p-6 md:p-8">
+                <form method="POST" action="{{ route('admin.studios.store') }}" class="space-y-6">
+                    @csrf
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-semibold text-cinema3-navy">Studio Name</label>
+                            <input name="name" value="{{ old('name') }}" required
+                                   class="mt-1 w-full rounded-xl border border-cinema3-navy/20 bg-white px-3 py-2 text-cinema3-navy
+                                          focus:border-cinema3-gold focus:ring focus:ring-cinema3-gold/30">
+                            @error('name') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                         </div>
 
-                        <div class="grid grid-cols-2 gap-6 mb-6">
-                            <!-- Total Rows -->
-                            <div>
-                                <label class="block text-gray-300 text-sm font-bold mb-2">Total Rows (A-Z)</label>
-                                <input type="number" name="total_rows" value="{{ old('total_rows', 5) }}" min="1" max="26" required
-                                    class="w-full bg-cinema-700 text-white border-none rounded px-4 py-3 focus:ring-2 focus:ring-cinema-gold">
-                                <p class="text-xs text-gray-500 mt-1">Between 1 and 26 (A-Z)</p>
-                                @error('total_rows') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                            </div>
-
-                            <!-- Seats Per Row -->
-                            <div>
-                                <label class="block text-gray-300 text-sm font-bold mb-2">Seats Per Row</label>
-                                <input type="number" name="seats_per_row" value="{{ old('seats_per_row', 8) }}" min="1" max="20" required
-                                    class="w-full bg-cinema-700 text-white border-none rounded px-4 py-3 focus:ring-2 focus:ring-cinema-gold">
-                                <p class="text-xs text-gray-500 mt-1">Between 1 and 20</p>
-                                @error('seats_per_row') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                            </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-cinema3-navy">Total Rows</label>
+                            <input type="number" name="total_rows" value="{{ old('total_rows', 10) }}" required min="1" max="26"
+                                   class="mt-1 w-full rounded-xl border border-cinema3-navy/20 bg-white px-3 py-2 text-cinema3-navy
+                                          focus:border-cinema3-gold focus:ring focus:ring-cinema3-gold/30">
+                            @error('total_rows') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            <p class="mt-1 text-xs text-cinema3-navy/50">Recommended max 26 (A–Z).</p>
                         </div>
 
-                        <div class="flex items-center justify-end mt-8">
-                            <a href="{{ route('admin.studios.index') }}" class="text-gray-400 hover:text-white mr-4 transition">Cancel</a>
-                            <button type="submit" class="bg-cinema-gold text-cinema-900 font-bold px-6 py-3 rounded hover:bg-yellow-400 transition transform hover:scale-105">
-                                Create Studio
-                            </button>
+                        <div>
+                            <label class="block text-sm font-semibold text-cinema3-navy">Seats per Row</label>
+                            <input type="number" name="seats_per_row" value="{{ old('seats_per_row', 12) }}" required min="1" max="20"
+                                   class="mt-1 w-full rounded-xl border border-cinema3-navy/20 bg-white px-3 py-2 text-cinema3-navy
+                                          focus:border-cinema3-gold focus:ring focus:ring-cinema3-gold/30">
+                            @error('seats_per_row') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                         </div>
-                    </form>
-                </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-3 pt-2">
+                        <button type="submit"
+                                class="inline-flex items-center justify-center rounded-xl bg-cinema3-gold px-6 py-3 text-sm font-semibold text-cinema3-navy shadow-sm
+                                       hover:bg-cinema3-goldDark focus:outline-none focus:ring-2 focus:ring-cinema3-gold/40 transition">
+                            Save Studio
+                        </button>
+
+                        <a href="{{ route('admin.studios.index') }}"
+                           class="inline-flex items-center justify-center rounded-xl bg-white px-6 py-3 text-sm font-semibold text-cinema3-navy border border-cinema3-navy/10 shadow-sm
+                                  hover:bg-white/80 focus:outline-none focus:ring-2 focus:ring-cinema3-gold/30 transition">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
             </div>
+
         </div>
     </div>
 </x-app-layout>
