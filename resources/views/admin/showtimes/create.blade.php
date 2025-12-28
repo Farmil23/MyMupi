@@ -1,76 +1,115 @@
 <x-app-layout>
     <x-slot name="header">
-        <div>
-            <h2 class="font-semibold text-2xl text-cinema3-gold leading-tight">Add Showtime</h2>
-            <p class="text-sm text-white/60">Schedule a movie session.</p>
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="font-black text-3xl text-cinema3-gold leading-tight tracking-tight">Add Showtime</h2>
+                <p class="text-sm text-white/60 font-medium">Schedule a new movie session.</p>
+            </div>
         </div>
     </x-slot>
 
-    <div class="py-10">
+    <div class="py-12">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
 
-            <div class="rounded-2xl bg-white/85 backdrop-blur-md border border-white/20 shadow-2xl p-6 md:p-8">
-                <form method="POST" action="{{ route('admin.showtimes.store') }}" class="space-y-6">
-                    @csrf
+            <div class="rounded-3xl bg-white/90 backdrop-blur-xl border border-white/40 shadow-2xl overflow-hidden relative">
+                <!-- Decorative gradient line -->
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cinema3-navy via-cinema3-gold to-cinema3-navy"></div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-semibold text-cinema3-navy">Movie</label>
-                            <select name="movie_id" required
-                                    class="mt-1 w-full rounded-xl border border-cinema3-navy/20 bg-white px-3 py-2 text-cinema3-navy
-                                           focus:border-cinema3-gold focus:ring focus:ring-cinema3-gold/30">
-                                <option value="" disabled selected>Select a movie</option>
-                                @foreach($movies as $movie)
-                                    <option value="{{ $movie->id }}" @selected(old('movie_id') == $movie->id)>{{ $movie->title }}</option>
-                                @endforeach
-                            </select>
-                            @error('movie_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                        </div>
+                <div class="p-8 md:p-10">
+                    <form method="POST" action="{{ route('admin.showtimes.store') }}" class="space-y-8">
+                        @csrf
 
+                        <!-- Section 1: Selection -->
                         <div>
-                            <label class="block text-sm font-semibold text-cinema3-navy">Studio</label>
-                            <select name="studio_id" required
-                                    class="mt-1 w-full rounded-xl border border-cinema3-navy/20 bg-white px-3 py-2 text-cinema3-navy
-                                           focus:border-cinema3-gold focus:ring focus:ring-cinema3-gold/30">
-                                <option value="" disabled selected>Select a studio</option>
-                                @foreach($studios as $studio)
-                                    <option value="{{ $studio->id }}" @selected(old('studio_id') == $studio->id)>{{ $studio->name }}</option>
-                                @endforeach
-                            </select>
-                            @error('studio_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            <h3 class="text-lg font-extrabold text-cinema3-navy flex items-center gap-2 mb-4">
+                                <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-cinema3-navy/5 text-cinema3-navy">🎬</span>
+                                Session Details
+                            </h3>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {{-- Movie Select --}}
+                                <div class="relative group">
+                                    <label class="block text-xs font-bold text-cinema3-navy/70 uppercase tracking-wider mb-1.5 ml-1">Select Movie</label>
+                                    <select name="movie_id" required
+                                            class="block w-full rounded-2xl border-2 border-cinema3-navy/5 bg-white px-4 py-3.5 text-cinema3-navy font-bold
+                                                   focus:border-cinema3-gold focus:ring focus:ring-cinema3-gold/20 transition-all cursor-pointer">
+                                        <option value="" disabled selected>Choose a movie...</option>
+                                        @foreach($movies as $movie)
+                                            <option value="{{ $movie->id }}" {{ old('movie_id') == $movie->id ? 'selected' : '' }}>
+                                                {{ $movie->title }} ({{ $movie->duration_minutes }}m)
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('movie_id') <p class="mt-1 text-sm text-red-600 font-medium pl-1">{{ $message }}</p> @enderror
+                                </div>
+
+                                {{-- Studio Select --}}
+                                <div class="relative group">
+                                    <label class="block text-xs font-bold text-cinema3-navy/70 uppercase tracking-wider mb-1.5 ml-1">Select Studio</label>
+                                    <select name="studio_id" required
+                                            class="block w-full rounded-2xl border-2 border-cinema3-navy/5 bg-white px-4 py-3.5 text-cinema3-navy font-bold
+                                                   focus:border-cinema3-gold focus:ring focus:ring-cinema3-gold/20 transition-all cursor-pointer">
+                                        <option value="" disabled selected>Choose a studio...</option>
+                                        @foreach($studios as $studio)
+                                            <option value="{{ $studio->id }}" {{ old('studio_id') == $studio->id ? 'selected' : '' }}>
+                                                {{ $studio->name }} (Cap: {{ $studio->capacity }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('studio_id') <p class="mt-1 text-sm text-red-600 font-medium pl-1">{{ $message }}</p> @enderror
+                                </div>
+                            </div>
                         </div>
 
+                        <div class="w-full h-px bg-cinema3-navy/5"></div>
+
+                        <!-- Section 2: Timing & Price -->
                         <div>
-                            <label class="block text-sm font-semibold text-cinema3-navy">Price</label>
-                            <input type="number" name="price" value="{{ old('price', 50000) }}" required min="0"
-                                   class="mt-1 w-full rounded-xl border border-cinema3-navy/20 bg-white px-3 py-2 text-cinema3-navy
-                                          focus:border-cinema3-gold focus:ring focus:ring-cinema3-gold/30">
-                            @error('price') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            <h3 class="text-lg font-extrabold text-cinema3-navy flex items-center gap-2 mb-4">
+                                <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-cinema3-navy/5 text-cinema3-navy">⏱️</span>
+                                Timing & Pricing
+                            </h3>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {{-- Start Time --}}
+                                <div>
+                                    <label class="block text-xs font-bold text-cinema3-navy/70 uppercase tracking-wider mb-1.5 ml-1">Start Time</label>
+                                    <input type="datetime-local" name="start_time" value="{{ old('start_time') }}" required
+                                           class="block w-full rounded-2xl border-2 border-cinema3-navy/5 bg-white px-4 py-3.5 text-cinema3-navy font-bold
+                                                  focus:border-cinema3-gold focus:ring focus:ring-cinema3-gold/20 transition-all">
+                                    @error('start_time') <p class="mt-1 text-sm text-red-600 font-medium pl-1">{{ $message }}</p> @enderror
+                                </div>
+
+                                {{-- Price --}}
+                                <div>
+                                    <label class="block text-xs font-bold text-cinema3-navy/70 uppercase tracking-wider mb-1.5 ml-1">Ticket Price (IDR)</label>
+                                    <div class="relative">
+                                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-cinema3-navy/40 font-bold">Rp</span>
+                                        <input type="number" name="price" value="{{ old('price', 50000) }}" required min="0" step="1000"
+                                               class="block w-full rounded-2xl border-2 border-cinema3-navy/5 bg-white pl-12 pr-4 py-3.5 text-cinema3-navy font-bold
+                                                      focus:border-cinema3-gold focus:ring focus:ring-cinema3-gold/20 transition-all placeholder-cinema3-navy/20"
+                                               placeholder="50000">
+                                    </div>
+                                    @error('price') <p class="mt-1 text-sm text-red-600 font-medium pl-1">{{ $message }}</p> @enderror
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-semibold text-cinema3-navy">Start Time</label>
-                            <input type="datetime-local" name="start_time" value="{{ old('start_time') }}" required
-                                   class="mt-1 w-full rounded-xl border border-cinema3-navy/20 bg-white px-3 py-2 text-cinema3-navy
-                                          focus:border-cinema3-gold focus:ring focus:ring-cinema3-gold/30">
-                            @error('start_time') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                        <!-- Actions -->
+                        <div class="flex items-center gap-4 pt-6">
+                            <button type="submit"
+                                    class="flex-1 md:flex-none inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-cinema3-gold to-cinema3-goldDark px-8 py-4 text-base font-black text-cinema3-navy shadow-lg shadow-cinema3-gold/20
+                                           hover:shadow-xl hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-cinema3-gold/40 transition-all duration-300">
+                                Create Schedule
+                            </button>
+
+                            <a href="{{ route('admin.showtimes.index') }}"
+                               class="inline-flex items-center justify-center rounded-2xl px-6 py-4 text-sm font-bold text-cinema3-navy hover:bg-cinema3-cream/50 transition">
+                                Cancel
+                            </a>
                         </div>
-                    </div>
-
-                    <div class="flex flex-wrap gap-3 pt-2">
-                        <button type="submit"
-                                class="inline-flex items-center justify-center rounded-xl bg-cinema3-gold px-6 py-3 text-sm font-semibold text-cinema3-navy shadow-sm
-                                       hover:bg-cinema3-goldDark focus:outline-none focus:ring-2 focus:ring-cinema3-gold/40 transition">
-                            Save Showtime
-                        </button>
-
-                        <a href="{{ route('admin.showtimes.index') }}"
-                           class="inline-flex items-center justify-center rounded-xl bg-white px-6 py-3 text-sm font-semibold text-cinema3-navy border border-cinema3-navy/10 shadow-sm
-                                  hover:bg-white/80 focus:outline-none focus:ring-2 focus:ring-cinema3-gold/30 transition">
-                            Cancel
-                        </a>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
 
         </div>

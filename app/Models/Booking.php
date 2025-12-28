@@ -17,4 +17,8 @@ class Booking extends Model
     public function showtime() {
         return $this->belongsTo(Showtime::class);
     }
+
+    public function user() {
+        return $this->belongsTo(User::class);
+    }
 }

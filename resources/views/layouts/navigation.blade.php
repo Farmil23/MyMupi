@@ -13,27 +13,33 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-white hover:text-cinema3-gold">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
+                    @auth
+                        @if(auth()->user()->role === 'admin')
+                            <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')" class="text-white hover:text-cinema3-gold">
+                                {{ __('Admin Dashboard') }}
+                            </x-nav-link>
 
-                    <x-nav-link :href="route('booking.index')" :active="request()->routeIs('booking.index')" class="text-white hover:text-cinema3-gold">
-                        {{ __('My Tickets') }}
-                    </x-nav-link>
+                            <x-nav-link :href="route('admin.movies.index')" :active="request()->routeIs('admin.movies.*')" class="text-white hover:text-cinema3-gold">
+                                {{ __('Movies') }}
+                            </x-nav-link>
 
-                    @if(auth()->user()->role === 'admin')
-                        <x-nav-link :href="route('admin.movies.index')" :active="request()->routeIs('admin.movies.*')" class="text-white hover:text-cinema3-gold">
-                            {{ __('Movies') }}
-                        </x-nav-link>
+                            <x-nav-link :href="route('admin.studios.index')" :active="request()->routeIs('admin.studios.*')" class="text-white hover:text-cinema3-gold">
+                                {{ __('Studios') }}
+                            </x-nav-link>
 
-                        <x-nav-link :href="route('admin.studios.index')" :active="request()->routeIs('admin.studios.*')" class="text-white hover:text-cinema3-gold">
-                            {{ __('Studios') }}
-                        </x-nav-link>
+                            <x-nav-link :href="route('admin.showtimes.index')" :active="request()->routeIs('admin.showtimes.*')" class="text-white hover:text-cinema3-gold">
+                                {{ __('Showtimes') }}
+                            </x-nav-link>
+                        @else
+                            <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-white hover:text-cinema3-gold">
+                                {{ __('Dashboard') }}
+                            </x-nav-link>
 
-                        <x-nav-link :href="route('admin.showtimes.index')" :active="request()->routeIs('admin.showtimes.*')" class="text-white hover:text-cinema3-gold">
-                            {{ __('Showtimes') }}
-                        </x-nav-link>
-                    @endif
+                            <x-nav-link :href="route('booking.index')" :active="request()->routeIs('booking.index')" class="text-white hover:text-cinema3-gold">
+                                {{ __('My Tickets') }}
+                            </x-nav-link>
+                        @endif
+                    @endauth
                 </div>
             </div>
 
@@ -106,13 +112,33 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-cinema3-navySoft border-t border-white/10">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-white hover:text-cinema3-gold">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
+            @auth
+                @if(auth()->user()->role === 'admin')
+                    <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')" class="text-white hover:text-cinema3-gold">
+                        {{ __('Admin Dashboard') }}
+                    </x-responsive-nav-link>
 
-            <x-responsive-nav-link :href="route('booking.index')" :active="request()->routeIs('booking.index')" class="text-white hover:text-cinema3-gold">
-                {{ __('My Tickets') }}
-            </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('admin.movies.index')" :active="request()->routeIs('admin.movies.*')" class="text-white hover:text-cinema3-gold">
+                        {{ __('Movies') }}
+                    </x-responsive-nav-link>
+
+                    <x-responsive-nav-link :href="route('admin.studios.index')" :active="request()->routeIs('admin.studios.*')" class="text-white hover:text-cinema3-gold">
+                        {{ __('Studios') }}
+                    </x-responsive-nav-link>
+
+                    <x-responsive-nav-link :href="route('admin.showtimes.index')" :active="request()->routeIs('admin.showtimes.*')" class="text-white hover:text-cinema3-gold">
+                        {{ __('Showtimes') }}
+                    </x-responsive-nav-link>
+                @else
+                    <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-white hover:text-cinema3-gold">
+                        {{ __('Dashboard') }}
+                    </x-responsive-nav-link>
+
+                    <x-responsive-nav-link :href="route('booking.index')" :active="request()->routeIs('booking.index')" class="text-white hover:text-cinema3-gold">
+                        {{ __('My Tickets') }}
+                    </x-responsive-nav-link>
+                @endif
+            @endauth
         </div>
 
         <!-- Responsive Settings Options -->

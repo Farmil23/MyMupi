@@ -1,330 +1,217 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-                <h2 class="font-extrabold text-2xl text-cinema3-gold leading-tight">
-                    {{ $movie->title }}
-                </h2>
-                <p class="text-sm text-white/60">
-                    {{ strtoupper($movie->genre) }}
-                    <span class="mx-2">•</span>
-                    {{ (int) $movie->duration_minutes }} MIN
-                    @if(!empty($movie->release_date))
-                        <span class="mx-2">•</span>
-                        {{ \Carbon\Carbon::parse($movie->release_date)->format('Y') }}
-                    @endif
-                </p>
-            </div>
-
-            <div class="flex flex-wrap gap-2">
-                <a href="{{ route('home') }}"
-                   class="inline-flex items-center justify-center rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white
-                          border border-white/10 hover:bg-white/15 transition">
-                    ← Back to Browse
-                </a>
-
-                <a href="#showtimes"
-                   class="inline-flex items-center justify-center rounded-xl bg-cinema3-gold px-4 py-2 text-sm font-extrabold text-cinema3-navy
-                          shadow-sm hover:bg-cinema3-goldDark focus:outline-none focus:ring-2 focus:ring-cinema3-gold/40 transition">
-                    See Showtimes
-                </a>
-            </div>
+    <div class="relative min-h-screen bg-cinema3-navy" x-data="{ selectedDate: '{{ now()->format('Y-m-d') }}' }">
+        
+        <!-- 1. IMMERSIVE BACKDROP (Fixed) -->
+        <div class="fixed inset-0 z-0 pointer-events-none">
+             @php
+                $posterUrl = \Illuminate\Support\Str::startsWith($movie->poster, 'http') 
+                    ? $movie->poster 
+                    : asset('storage/' . $movie->poster);
+            @endphp
+            <img src="{{ $posterUrl }}" class="w-full h-full object-cover opacity-20 blur-[100px] scale-125">
+            <div class="absolute inset-0 bg-gradient-to-t from-cinema3-navy via-cinema3-navy/80 to-transparent"></div>
+            <div class="absolute inset-0 bg-cinema3-navy/30 mix-blend-multiply"></div>
         </div>
-    </x-slot>
 
-    @php
-        $posterUrl = null;
-        if (!empty($movie->poster)) {
-            $posterUrl = \Illuminate\Support\Str::startsWith($movie->poster, 'http')
-                ? $movie->poster
-                : asset('storage/' . ltrim($movie->poster, '/'));
-        }
-        $posterFallback = 'https://via.placeholder.com/600x900/1D2A3A/F3C44E?text=' . urlencode($movie->title);
-        $year = !empty($movie->release_date) ? \Carbon\Carbon::parse($movie->release_date)->format('Y') : null;
+        <!-- 2. MAIN CONTENT -->
+        <div class="relative z-10 pt-20 pb-24">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <!-- BREADCRUMB & BACK -->
+                <nav class="flex items-center gap-4 mb-8 text-sm font-medium text-white/50">
+                    <a href="{{ route('home') }}" class="hover:text-cinema3-gold transition-colors">Movies</a>
+                    <span>/</span>
+                    <span class="text-white">{{ $movie->title }}</span>
+                </nav>
 
-        $authId = auth()->id();
-        $hasReviewed = auth()->check() ? $movie->reviews->where('user_id', $authId)->count() : false;
-    @endphp
-
-    <div class="relative py-10">
-        <!-- subtle background glow -->
-        <div class="absolute inset-0 bg-gradient-to-b from-cinema3-navy/25 via-cinema3-cream to-cinema3-cream"></div>
-
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
-                <!-- LEFT: Poster / quick info -->
-                <aside class="lg:col-span-4">
-                    <div class="rounded-3xl bg-white/85 backdrop-blur-md border border-white/20 shadow-2xl overflow-hidden">
-                        <div class="relative">
-                            <div class="aspect-[2/3] bg-cinema3-cream">
-                                <img
-                                    src="{{ $posterUrl ?: $posterFallback }}"
-                                    alt="{{ $movie->title }}"
-                                    class="w-full h-full object-cover"
-                                >
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+                    
+                    <!-- LEFT COLUMN: POSTER (Floating) -->
+                    <div class="lg:col-span-4 sticky top-24">
+                        <div class="relative group perspective-1000">
+                            <div class="relative rounded-3xl overflow-hidden shadow-2xl border-[8px] border-white/5 transition-transform duration-700 transform group-hover:rotate-y-6 group-hover:rotate-x-6 shadow-black/50">
+                                <img src="{{ $posterUrl }}" class="w-full h-auto object-cover shadow-inner">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                             </div>
-
-                            <div class="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/55 to-transparent"></div>
-
-                            <!-- Rating badge -->
-                            <div class="absolute top-4 left-4 inline-flex items-center gap-2 rounded-2xl bg-cinema3-navy/85 backdrop-blur px-3 py-2 text-sm font-extrabold text-cinema3-gold">
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                </svg>
-                                {{ number_format((float) $movie->rating, 1) }} <span class="text-white/70 font-semibold">/10</span>
-                            </div>
-
-                            <!-- Quick meta -->
-                            <div class="absolute bottom-4 left-4 right-4 flex flex-wrap gap-2">
-                                <span class="inline-flex items-center rounded-full bg-white/15 border border-white/10 text-white/90 px-3 py-1 text-xs font-bold">
-                                    {{ $movie->genre }}
-                                </span>
-                                <span class="inline-flex items-center rounded-full bg-white/15 border border-white/10 text-white/90 px-3 py-1 text-xs font-bold">
-                                    {{ (int) $movie->duration_minutes }} mins
-                                </span>
-                                @if($year)
-                                    <span class="inline-flex items-center rounded-full bg-white/15 border border-white/10 text-white/90 px-3 py-1 text-xs font-bold">
-                                        {{ $year }}
-                                    </span>
-                                @endif
-                            </div>
+                            <!-- Reflection/Glow -->
+                            <div class="absolute -inset-4 bg-cinema3-gold/20 blur-3xl rounded-full -z-10 opacity-0 group-hover:opacity-40 transition-opacity duration-700"></div>
                         </div>
 
-                        <div class="p-6">
-                            <div class="text-cinema3-navy/70 text-sm">
-                                Ready to watch? Check available showtimes and book your seats.
-                            </div>
-
-                            <div class="mt-4 flex flex-col gap-2">
-                                <a href="#showtimes"
-                                   class="w-full text-center rounded-xl bg-cinema3-gold px-4 py-3 text-sm font-extrabold text-cinema3-navy
-                                          hover:bg-cinema3-goldDark transition shadow-sm">
-                                    Browse Showtimes
-                                </a>
-
-                                @guest
-                                    <a href="{{ route('login') }}"
-                                       class="w-full text-center rounded-xl bg-white border border-cinema3-navy/10 px-4 py-3 text-sm font-bold text-cinema3-navy
-                                              hover:bg-white/80 transition">
-                                        Login to Book
-                                    </a>
-                                @endguest
-                            </div>
-                        </div>
-                    </div>
-                </aside>
-
-                <!-- RIGHT: Details / showtimes / reviews -->
-                <section class="lg:col-span-8 space-y-6">
-
-                    <!-- Synopsis / details card -->
-                    <div class="rounded-3xl bg-white/85 backdrop-blur-md border border-white/20 shadow-2xl p-6 sm:p-8">
-                        <div class="flex items-start justify-between gap-4">
-                            <div>
-                                <h3 class="text-xl sm:text-2xl font-extrabold text-cinema3-navy">Synopsis</h3>
-                                <p class="mt-1 text-cinema3-navy/60 text-sm">Story overview & highlights.</p>
-                            </div>
-                        </div>
-
-                        <div class="mt-5 text-cinema3-navy/80 leading-relaxed">
-                            {{ $movie->synopsis ?? $movie->description }}
-                        </div>
-                    </div>
-
-                    <!-- Showtimes -->
-                    <div id="showtimes" class="rounded-3xl bg-white/85 backdrop-blur-md border border-white/20 shadow-2xl p-6 sm:p-8">
-                        <div class="flex items-center justify-between gap-3">
-                            <div>
-                                <h3 class="text-xl sm:text-2xl font-extrabold text-cinema3-navy">Available Showtimes</h3>
-                                <p class="mt-1 text-cinema3-navy/60 text-sm">Pick a time and book instantly.</p>
-                            </div>
-                        </div>
-
-                        @if($movie->showtimes->count() > 0)
-                            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                @foreach($movie->showtimes as $showtime)
-                                    <div class="rounded-2xl bg-cinema3-cream/70 border border-cinema3-navy/10 p-5 hover:bg-cinema3-cream transition">
-                                        <div class="flex items-start justify-between gap-4">
-                                            <div>
-                                                <div class="text-cinema3-navy font-extrabold text-lg">
-                                                    {{ \Carbon\Carbon::parse($showtime->start_time)->format('h:i A') }}
-                                                </div>
-                                                <div class="text-cinema3-navy/60 text-sm mt-1">
-                                                    {{ optional($showtime->studio)->name ?? '-' }}
-                                                    <span class="mx-1">•</span>
-                                                    {{ \Carbon\Carbon::parse($showtime->start_time)->format('D, d M Y') }}
-                                                </div>
-                                            </div>
-
-                                            <div class="text-right">
-                                                <div class="text-cinema3-navy font-extrabold">
-                                                    Rp {{ number_format((int)$showtime->price, 0, ',', '.') }}
-                                                </div>
-                                                <div class="text-xs text-cinema3-navy/50">per ticket</div>
-                                            </div>
-                                        </div>
-
-                                        <div class="mt-4">
-                                            @auth
-                                                <a href="{{ route('booking.create', $showtime->id) }}"
-                                                   class="inline-flex w-full items-center justify-center rounded-xl bg-cinema3-navy px-4 py-3 text-sm font-extrabold text-white
-                                                          hover:bg-cinema3-navySoft focus:outline-none focus:ring-2 focus:ring-cinema3-gold/30 transition">
-                                                    Book Seats →
-                                                </a>
-                                            @else
-                                                <a href="{{ route('login') }}"
-                                                   class="inline-flex w-full items-center justify-center rounded-xl bg-white border border-cinema3-navy/10 px-4 py-3 text-sm font-bold text-cinema3-navy
-                                                          hover:bg-white/80 transition">
-                                                    Login to Book
-                                                </a>
-                                            @endauth
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
+                        <!-- TRAILER BUTTON (Mobile/Desktop) -->
+                        @if(!empty($movie->trailer_url))
+                            <a href="{{ $movie->trailer_url }}" target="_blank" class="mt-8 w-full group relative flex items-center justify-center gap-3 rounded-2xl bg-white/5 border border-white/10 px-6 py-4 text-white font-bold backdrop-blur-md hover:bg-white/10 hover:border-white/20 transition-all overflow-hidden cursor-pointer">
+                                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                                <span class="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white pl-1 shadow-lg group-hover:scale-110 transition-transform">▶</span>
+                                <span>Watch Trailer</span>
+                            </a>
                         @else
-                            <div class="mt-6 rounded-2xl bg-cinema3-cream/70 border border-cinema3-navy/10 p-6 text-center">
-                                <div class="mx-auto h-12 w-12 rounded-2xl bg-cinema3-navy/10 border border-cinema3-navy/10 flex items-center justify-center text-xl">
-                                    ⏱️
-                                </div>
-                                <div class="mt-3 font-extrabold text-cinema3-navy">No showtimes available</div>
-                                <div class="text-sm text-cinema3-navy/60 mt-1">Please check back later.</div>
-                            </div>
+                            <button class="mt-8 w-full group relative flex items-center justify-center gap-3 rounded-2xl bg-white/5 border border-white/10 px-6 py-4 text-white/50 font-bold backdrop-blur-md cursor-not-allowed">
+                                <span class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/30 pl-1">▶</span>
+                                <span>No Trailer Available</span>
+                            </button>
                         @endif
                     </div>
 
-                    <!-- Reviews -->
-                    <div class="rounded-3xl bg-white/85 backdrop-blur-md border border-white/20 shadow-2xl p-6 sm:p-8">
-                        <div>
-                            <h3 class="text-xl sm:text-2xl font-extrabold text-cinema3-navy">Reviews & Ratings</h3>
-                            <p class="mt-1 text-cinema3-navy/60 text-sm">Share your thoughts and help others choose.</p>
+                    <!-- RIGHT COLUMN: DETAILS & BOOKING -->
+                    <div class="lg:col-span-8 space-y-12">
+                        
+                        <!-- HEADER INFO -->
+                        <div class="space-y-6">
+                            <div class="flex flex-wrap items-center gap-3 text-xs font-bold tracking-widest uppercase text-cinema3-gold mb-2">
+                                <span class="bg-cinema3-gold/10 border border-cinema3-gold/20 px-3 py-1 rounded-lg backdrop-blur-sm">{{ $movie->genre }}</span>
+                                <span class="text-white/40">•</span>
+                                <span class="text-white/60">{{ (int)$movie->duration_minutes }} MIN</span>
+                                <span class="text-white/40">•</span>
+                                <span class="text-white/60">{{ \Carbon\Carbon::parse($movie->release_date)->format('Y') }}</span>
+                            </div>
+                            
+                            <h1 class="text-5xl md:text-7xl font-black text-white leading-none tracking-tight drop-shadow-xl">
+                                {{ $movie->title }}
+                            </h1>
+
+                            <div class="flex items-center gap-6 text-white/80">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-3xl text-cinema3-gold">★</span>
+                                    <span class="text-2xl font-bold">{{ number_format($movie->rating, 1) }}</span>
+                                    <span class="text-sm opacity-50 self-end mb-1">/ 10</span>
+                                </div>
+                                <div class="h-8 w-px bg-white/10"></div>
+                                <div>
+                                    <div class="text-xs opacity-50 uppercase tracking-widest">Director</div>
+                                    <div class="font-bold">Christopher Nolan</div> <!-- Placeholder if no data -->
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Write review -->
-                        <div class="mt-6">
-                            @auth
-                                @if(!$hasReviewed)
-                                    <div class="rounded-2xl bg-cinema3-cream/70 border border-cinema3-navy/10 p-6">
-                                        <h4 class="font-extrabold text-cinema3-navy">Write a Review</h4>
+                        <!-- SYNOPSIS -->
+                        <div class="prose prose-lg prose-invert text-white/70 leading-relaxed max-w-none">
+                            <h3 class="text-white font-bold text-xl mb-3 flex items-center gap-2">
+                                <span class="w-1 h-6 bg-cinema3-gold rounded-full"></span>
+                                Synopsis
+                            </h3>
+                            <p>{{ $movie->synopsis ?? $movie->description }}</p>
+                        </div>
 
-                                        <form action="{{ route('movie.review.store', $movie) }}" method="POST" class="mt-4 space-y-4">
-                                            @csrf
+                        <!-- BOOKING SECTION -->
+                        <div id="booking" class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-8 md:p-10 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-64 h-64 bg-cinema3-gold/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
+                            
+                            <h3 class="text-2xl font-black text-white mb-8 flex items-center gap-3">
+                                🎟️ Get Your Tickets
+                            </h3>
 
-                                            <div
-                                                x-data="{
-                                                    rating: {{ (int) old('rating', 0) }},
-                                                    hover: 0,
-                                                    max: 5
-                                                }"
-                                            >
-                                                <label class="block text-sm font-bold text-cinema3-navy mb-2">Rating</label>
-
-                                                <!-- nilai rating yang akan dikirim ke backend -->
-                                                <input type="hidden" name="rating" :value="rating" required>
-
-                                                <div class="flex items-center gap-2">
-                                                    <template x-for="n in max" :key="n">
-                                                        <button
-                                                            type="button"
-                                                            class="h-10 w-10 rounded-xl border text-lg font-extrabold transition flex items-center justify-center"
-                                                            :class="
-                                                                ((hover || rating) >= n)
-                                                                    ? 'bg-cinema3-gold/20 border-cinema3-gold/50 text-cinema3-gold'
-                                                                    : 'bg-white border-cinema3-navy/10 text-cinema3-navy/30 hover:text-cinema3-gold'
-                                                            "
-                                                            @mouseenter="hover = n"
-                                                            @mouseleave="hover = 0"
-                                                            @click="rating = n"
-                                                            :aria-label="'Rate ' + n + ' out of ' + max"
-                                                            title="Click to rate"
-                                                        >
-                                                            ★
-                                                        </button>
-                                                    </template>
-
-                                                    <div class="ml-2 text-sm font-bold text-cinema3-navy/70">
-                                                        <span x-text="rating ? (rating + '/5') : 'Select'"></span>
-                                                    </div>
+                            @if($movie->showtimes->count() > 0)
+                                <!-- SHOWTIMES GRID -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    @foreach($movie->showtimes as $showtime)
+                                        <a href="{{ route('booking.create', $showtime->id) }}" 
+                                           class="group relative flex flex-col justify-center p-5 rounded-2xl bg-white/5 border border-white/10 hover:bg-cinema3-gold hover:border-cinema3-gold transition-all duration-300">
+                                            
+                                            <div class="flex justify-between items-center mb-2">
+                                                <span class="text-lg font-black text-white group-hover:text-cinema3-navy">
+                                                    {{ \Carbon\Carbon::parse($showtime->start_time)->format('H:i') }}
+                                                </span>
+                                                <span class="text-xs font-bold px-2 py-1 rounded bg-white/10 text-white group-hover:bg-cinema3-navy/10 group-hover:text-cinema3-navy uppercase tracking-wider">
+                                                    {{ $showtime->studio->name }}
+                                                </span>
+                                            </div>
+                                            
+                                            <div class="flex justify-between items-end border-t border-white/10 pt-3 group-hover:border-cinema3-navy/10">
+                                                <div class="text-xs text-white/50 group-hover:text-cinema3-navy/60">
+                                                    {{ \Carbon\Carbon::parse($showtime->start_time)->format('D, d M') }}
                                                 </div>
-
-                                                @error('rating')
-                                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                                @enderror
+                                                <div class="font-bold text-cinema3-gold group-hover:text-cinema3-navy">
+                                                    Rp {{ number_format($showtime->price, 0, ',', '.') }}
+                                                </div>
                                             </div>
 
-                                            <div>
-                                                <label class="block text-sm font-bold text-cinema3-navy mb-2">Review</label>
-                                                <textarea name="review" rows="4" required
-                                                          class="w-full rounded-2xl border border-cinema3-navy/15 bg-white px-4 py-3 text-cinema3-navy
-                                                                 focus:border-cinema3-gold focus:ring focus:ring-cinema3-gold/30"
-                                                          placeholder="Share your thoughts...">{{ old('review') }}</textarea>
-                                                @error('review')
-                                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                                @enderror
+                                            <!-- Hover Arrow -->
+                                            <div class="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all font-black text-cinema3-navy text-2xl">
+                                                →
                                             </div>
-
-                                            <button type="submit"
-                                                    class="inline-flex items-center justify-center rounded-xl bg-cinema3-gold px-6 py-3 text-sm font-extrabold text-cinema3-navy
-                                                           hover:bg-cinema3-goldDark focus:outline-none focus:ring-2 focus:ring-cinema3-gold/40 transition shadow-sm">
-                                                Submit Review
-                                            </button>
-                                        </form>
-                                    </div>
-                                @else
-                                    <div class="rounded-2xl bg-green-50 border border-green-200 text-green-700 p-4 font-semibold">
-                                        You have already reviewed this movie.
-                                    </div>
-                                @endif
+                                        </a>
+                                    @endforeach
+                                </div>
                             @else
-                                <div class="rounded-2xl bg-cinema3-cream/70 border border-cinema3-navy/10 p-5 text-center">
-                                    <p class="text-cinema3-navy/70">
-                                        Please
-                                        <a href="{{ route('login') }}" class="text-cinema3-goldDark font-extrabold hover:underline">login</a>
-                                        to leave a review.
-                                    </p>
+                                <div class="text-center py-12">
+                                    <div class="text-4xl mb-4 opacity-50">📅</div>
+                                    <h4 class="text-white font-bold text-lg">No Showtimes Available</h4>
+                                    <p class="text-white/50 text-sm mt-2">Check back later for updates.</p>
                                 </div>
-                            @endauth
+                            @endif
                         </div>
 
-                        <!-- Review list -->
-                        <div class="mt-7 space-y-4">
-                            @forelse($movie->reviews as $review)
-                                @php
-                                    $name = optional($review->user)->name ?? 'User';
-                                    $initial = strtoupper(mb_substr($name, 0, 1));
-                                @endphp
+                        <!-- REVIEWS SECTION -->
+                        <div class="border-t border-white/10 pt-12">
+                            <div class="flex items-center justify-between mb-8">
+                                <h3 class="text-2xl font-black text-white flex items-center gap-3">
+                                    💬 Fan Reviews 
+                                    <span class="text-sm font-normal text-white/40 bg-white/10 px-2 py-0.5 rounded-full">{{ $movie->reviews->count() }}</span>
+                                </h3>
+                                
+                                @auth
+                                    @if(!$movie->reviews->where('user_id', auth()->id())->count())
+                                    <button onclick="document.getElementById('review-form').classList.toggle('hidden')" 
+                                            class="text-sm font-bold text-cinema3-gold hover:text-white transition-colors underline decoration-2 underline-offset-4">
+                                        + Write a Review
+                                    </button>
+                                    @endif
+                                @endauth
+                            </div>
 
-                                <div class="rounded-2xl bg-white/70 border border-cinema3-navy/10 p-6 shadow-sm">
-                                    <div class="flex items-start justify-between gap-4">
-                                        <div class="flex items-center gap-3">
-                                            <div class="h-11 w-11 rounded-full bg-cinema3-navy text-cinema3-gold font-extrabold flex items-center justify-center border border-cinema3-gold/50">
-                                                {{ $initial }}
-                                            </div>
-                                            <div>
-                                                <div class="font-extrabold text-cinema3-navy">{{ $name }}</div>
-                                                <div class="text-xs text-cinema3-navy/50">
-                                                    {{ $review->created_at ? $review->created_at->diffForHumans() : '' }}
+                            <!-- REVIEW FORM (Hidden by default) -->
+                            <div id="review-form" class="hidden mb-10 bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
+                                <form action="{{ route('movie.review.store', $movie) }}" method="POST" class="space-y-4">
+                                    @csrf
+                                    <div x-data="{ rating: 0, hover: 0 }">
+                                        <label class="block text-sm font-bold text-white mb-2">Your Rating</label>
+                                        <input type="hidden" name="rating" :value="rating">
+                                        <div class="flex gap-2">
+                                            @foreach(range(1,5) as $i)
+                                                <button type="button" @mouseenter="hover = {{ $i }}" @mouseleave="hover = 0" @click="rating = {{ $i }}"
+                                                        class="text-2xl transition-transform hover:scale-110"
+                                                        :class="(hover >= {{ $i }} || rating >= {{ $i }}) ? 'text-cinema3-gold' : 'text-gray-600'">
+                                                    ★
+                                                </button>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-white mb-2">Review</label>
+                                        <textarea name="review" rows="3" class="w-full bg-black/20 border border-white/10 rounded-xl p-4 text-white placeholder-white/30 focus:border-cinema3-gold focus:ring-1 focus:ring-cinema3-gold outline-none transition" placeholder="What did you think?"></textarea>
+                                    </div>
+                                    <button type="submit" class="bg-cinema3-gold text-cinema3-navy font-bold px-6 py-3 rounded-xl hover:bg-white transition-colors">Submit Review</button>
+                                </form>
+                            </div>
+
+                            <!-- REVIEWS LIST -->
+                            <div class="space-y-6">
+                                @forelse($movie->reviews as $review)
+                                    <div class="bg-white/5 border border-white/5 rounded-2xl p-6 hover:bg-white/10 transition duration-300">
+                                        <div class="flex justify-between items-start mb-4">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-cinema3-gold to-orange-500 flex items-center justify-center text-cinema3-navy font-black text-sm">
+                                                    {{ substr($review->user->name, 0, 1) }}
+                                                </div>
+                                                <div>
+                                                    <div class="text-white font-bold text-sm">{{ $review->user->name }}</div>
+                                                    <div class="text-white/30 text-[10px] uppercase font-bold tracking-wide">{{ $review->created_at->diffForHumans() }}</div>
                                                 </div>
                                             </div>
+                                            <div class="flex text-cinema3-gold text-sm gap-0.5">
+                                                @for($i=0; $i<$review->rating; $i++) ★ @endfor
+                                            </div>
                                         </div>
-
-                                        <div class="inline-flex items-center rounded-xl bg-cinema3-gold/20 border border-cinema3-gold/30 px-3 py-1 text-sm font-extrabold text-cinema3-navy">
-                                            ★ {{ (int)$review->rating }}/5
-                                        </div>
+                                        <p class="text-white/70 text-sm leading-relaxed italic">"{{ $review->review }}"</p>
                                     </div>
-
-                                    <div class="mt-4 text-cinema3-navy/80 leading-relaxed">
-                                        {{ $review->review }}
-                                    </div>
-                                </div>
-                            @empty
-                                <p class="text-cinema3-navy/60 italic">No reviews yet. Be the first to review!</p>
-                            @endforelse
+                                @empty
+                                    <div class="text-white/30 text-center py-8 italic font-light">No reviews yet. Be the first to share your thoughts!</div>
+                                @endforelse
+                            </div>
                         </div>
-                    </div>
 
-                </section>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

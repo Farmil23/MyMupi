@@ -41,7 +41,7 @@
                 <h3 class="text-2xl font-bold text-white border-l-4 border-cinema-gold pl-4">Now Playing</h3>
                 
                 <!-- Search & Filter -->
-                <form action="{{ route('home') }}" method="GET" class="flex w-full md:w-auto gap-2">
+                <form action="{{ route('home') }}" method="GET" class="flex flex-wrap w-full md:w-auto gap-2">
                     <select name="genre" class="bg-cinema-800 text-white border-cinema-700 rounded focus:ring-cinema-gold focus:border-cinema-gold">
                         <option value="">All Genres</option>
                         @foreach($genres as $genre)

@@ -23,94 +23,80 @@
                 </div>
             @endif
 
-            <div class="rounded-2xl bg-white/85 backdrop-blur-md border border-white/20 shadow-2xl overflow-hidden">
-                <div class="p-6 md:p-8 flex items-center justify-between gap-4">
-                    <h3 class="text-lg font-extrabold text-cinema3-navy">Showtime List</h3>
-                    <span class="text-sm text-cinema3-navy/60">{{ $showtimes->total() }} total</span>
-                </div>
+            <!-- Showtimes List -->
+            <div class="space-y-4">
+                @forelse($showtimes as $showtime)
+                    @php
+                        $movieTitle = optional($showtime->movie)->title ?? 'Movie Deleted';
+                        $studioName = optional($showtime->studio)->name ?? 'Studio ?';
+                        $start = $showtime->start_time ? \Carbon\Carbon::parse($showtime->start_time) : null;
+                    @endphp
 
-                <div class="overflow-x-auto border-t border-white/30">
-                    <table class="min-w-full divide-y divide-cinema3-navy/10">
-                        <thead class="bg-cinema3-navy/95 text-white">
-                            <tr>
-                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Movie</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Studio</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Start Time</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Price</th>
-                                <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
+                    <div class="group relative bg-white/80 backdrop-blur-sm rounded-3xl border border-white/40 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col sm:flex-row items-center">
+                        
+                        <!-- Left: Date Box -->
+                        <div class="w-full sm:w-32 bg-cinema3-navy/5 h-20 sm:h-auto flex flex-col items-center justify-center border-b sm:border-b-0 sm:border-r border-cinema3-navy/10 p-4">
+                            @if($start)
+                                <span class="text-xs font-bold text-cinema3-navy/40 uppercase tracking-widest">{{ $start->format('M') }}</span>
+                                <span class="text-3xl font-black text-cinema3-navy">{{ $start->format('d') }}</span>
+                                <span class="text-xs font-semibold text-cinema3-navy/60">{{ $start->format('D') }}</span>
+                            @else
+                                <span class="text-xs font-bold">N/A</span>
+                            @endif
+                        </div>
 
-                        <tbody class="divide-y divide-cinema3-navy/10 bg-white/60">
-                            @forelse($showtimes as $showtime)
-                                @php
-                                    $movieTitle = optional($showtime->movie)->title ?? 'Movie';
-                                    $studioName = optional($showtime->studio)->name ?? '-';
-                                    $start = $showtime->start_time ? \Carbon\Carbon::parse($showtime->start_time)->format('D, d M Y • H:i') : '-';
-                                @endphp
+                        <!-- Middle: Details -->
+                        <div class="flex-1 p-6 text-center sm:text-left">
+                            <h3 class="text-lg font-black text-cinema3-navy leading-tight">{{ $movieTitle }}</h3>
+                            
+                            <div class="mt-2 flex flex-wrap items-center justify-center sm:justify-start gap-3">
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cinema3-gold/10 text-cinema3-goldDark text-xs font-bold ring-1 ring-cinema3-gold/30">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    {{ $start ? $start->format('H:i') : '--:--' }}
+                                </span>
 
-                                <tr class="hover:bg-white/80 transition">
-                                    <td class="px-6 py-4">
-                                        <div class="font-bold text-cinema3-navy">{{ $movieTitle }}</div>
-                                        <div class="text-sm text-cinema3-navy/60">ID: {{ $showtime->id }}</div>
-                                    </td>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cinema3-navy/5 text-cinema3-navy/70 text-xs font-bold ring-1 ring-cinema3-navy/10">
+                                    🏛️ {{ $studioName }}
+                                </span>
 
-                                    <td class="px-6 py-4">
-                                        <span class="inline-flex items-center rounded-full bg-cinema3-gold/20 text-cinema3-navy px-3 py-1 text-xs font-semibold border border-cinema3-gold/30">
-                                            {{ $studioName }}
-                                        </span>
-                                    </td>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-bold ring-1 ring-green-100">
+                                    💵 IDR {{ number_format($showtime->price, 0, ',', '.') }}
+                                </span>
+                            </div>
+                        </div>
 
-                                    <td class="px-6 py-4 text-cinema3-navy/80">{{ $start }}</td>
+                        <!-- Right: Actions -->
+                        <div class="p-4 sm:pr-8 flex items-center gap-3">
+                            <a href="{{ route('admin.showtimes.edit', $showtime->id) }}" class="h-10 w-10 flex items-center justify-center rounded-full bg-white border border-cinema3-navy/10 text-cinema3-navy hover:bg-cinema3-gold hover:text-cinema3-navy transition shadow-sm" title="Edit">
+                                ✏️
+                            </a>
+                            
+                            <form method="POST" action="{{ route('admin.showtimes.destroy', $showtime->id) }}" onsubmit="return confirm('Delete this showtime?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="h-10 w-10 flex items-center justify-center rounded-full bg-red-50 text-red-600 border border-red-100 hover:bg-red-500 hover:text-white transition shadow-sm" title="Delete">
+                                    🗑️
+                                </button>
+                            </form>
+                        </div>
 
-                                    <td class="px-6 py-4 text-cinema3-navy/80">
-                                        Rp {{ number_format($showtime->price, 0, ',', '.') }}
-                                    </td>
+                    </div>
+                @empty
+                    <div class="py-16 text-center bg-white/50 rounded-3xl border border-dashed border-cinema3-navy/20">
+                        <div class="mx-auto h-16 w-16 rounded-2xl bg-cinema3-navy/5 flex items-center justify-center text-3xl mb-4">
+                            🎬
+                        </div>
+                        <h3 class="text-xl font-bold text-cinema3-navy">No showtimes scheduled</h3>
+                        <p class="text-cinema3-navy/50 mb-6">Create a schedule to start selling tickets.</p>
+                        <a href="{{ route('admin.showtimes.create') }}" class="inline-flex items-center justify-center rounded-xl bg-cinema3-gold px-6 py-3 text-sm font-bold text-cinema3-navy hover:bg-cinema3-goldDark transition shadow-sm">
+                            + Add Showtime
+                        </a>
+                    </div>
+                @endforelse
+            </div>
 
-                                    <td class="px-6 py-4">
-                                        <div class="flex justify-end gap-2">
-                                            <a href="{{ route('admin.showtimes.edit', $showtime->id) }}"
-                                               class="inline-flex items-center justify-center rounded-xl bg-white px-4 py-2 text-sm font-semibold text-cinema3-navy border border-cinema3-navy/10 shadow-sm
-                                                      hover:bg-white/80 focus:outline-none focus:ring-2 focus:ring-cinema3-gold/30 transition">
-                                                Edit
-                                            </a>
-
-                                            <form method="POST" action="{{ route('admin.showtimes.destroy', $showtime->id) }}"
-                                                  onsubmit="return confirm('Delete this showtime?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit"
-                                                        class="inline-flex items-center justify-center rounded-xl bg-cinema3-navy px-4 py-2 text-sm font-semibold text-white shadow-sm
-                                                               hover:bg-cinema3-navySoft focus:outline-none focus:ring-2 focus:ring-cinema3-gold/30 transition">
-                                                    Delete
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="px-6 py-14 text-center">
-                                        <div class="mx-auto h-14 w-14 rounded-2xl bg-cinema3-navy/10 border border-cinema3-navy/10 flex items-center justify-center text-2xl">
-                                            ⏱️
-                                        </div>
-                                        <h3 class="mt-4 text-xl font-extrabold text-cinema3-navy">No showtimes yet</h3>
-                                        <p class="mt-1 text-cinema3-navy/60">Add a showtime to start selling tickets.</p>
-                                        <a href="{{ route('admin.showtimes.create') }}"
-                                           class="mt-6 inline-flex items-center justify-center rounded-xl bg-cinema3-gold px-6 py-3 text-sm font-semibold text-cinema3-navy shadow-sm
-                                                  hover:bg-cinema3-goldDark focus:outline-none focus:ring-2 focus:ring-cinema3-gold/40 transition">
-                                            + Add Showtime
-                                        </a>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="px-6 py-4 bg-white/60 border-t border-white/30">
-                    {{ $showtimes->links() }}
-                </div>
+            <div class="mt-8">
+                {{ $showtimes->links() }}
             </div>
 
         </div>

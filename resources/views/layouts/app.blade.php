@@ -43,7 +43,7 @@
 </head>
 
 <body class="min-h-screen font-sans antialiased text-cinema3-dark">
-    <div class="min-h-screen relative overflow-hidden">
+    <div class="min-h-screen relative overflow-x-hidden">
         <!-- Background layer -->
         <div class="absolute inset-0 bg-gradient-to-b from-cinema3-navy via-cinema3-navySoft to-cinema3-cream"></div>
         <div class="absolute inset-0 opacity-25 pointer-events-none">

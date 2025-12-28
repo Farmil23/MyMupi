@@ -85,6 +85,14 @@
                         </div>
 
                         <div>
+                            <label class="block text-sm font-semibold text-cinema3-navy">Trailer URL (YouTube)</label>
+                            <input name="trailer_url" value="{{ old('trailer_url') }}" placeholder="https://www.youtube.com/watch?v=..."
+                                   class="mt-1 w-full rounded-xl border border-cinema3-navy/20 bg-white px-3 py-2 text-cinema3-navy
+                                          focus:border-cinema3-gold focus:ring focus:ring-cinema3-gold/30">
+                            @error('trailer_url') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div>
                             <label class="block text-sm font-semibold text-cinema3-navy">Poster File (optional)</label>
                             <input type="file" name="poster_file" accept="image/*"
                                    class="mt-1 w-full text-sm text-cinema3-navy/70

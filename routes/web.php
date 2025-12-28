@@ -19,10 +19,46 @@ Route::get('/movie/{movie}', [App\Http\Controllers\MovieController::class, 'show
 Route::middleware(['auth'])->group(function () {
     Route::post('/movie/{movie}/review', [App\Http\Controllers\MovieController::class, 'storeReview'])->name('movie.review.store');
     
+    // Updated Dashboard with Richer Data (V3)
     Route::get('/dashboard', function () {
-        $bookingsCount = \App\Models\Booking::where('user_id', auth()->id())->count();
-        $latestBooking = \App\Models\Booking::where('user_id', auth()->id())->latest()->first();
-        return view('dashboard', compact('bookingsCount', 'latestBooking'));
+        $user = auth()->user();
+        
+        // 1. Basic Stats
+        $bookings = \App\Models\Booking::where('user_id', $user->id)->with(['showtime.movie', 'showtime.studio'])->latest()->get();
+        $bookingsCount = $bookings->count();
+        $latestBooking = $bookings->first();
+        
+        // 2. Calculate Total Spent
+        $totalSpent = $bookings->sum(function($booking) {
+             return $booking->showtime ? $booking->showtime->price : 0;
+        });
+
+        // 3. Featured Movie (Random VALID "Now Showing")
+        $featuredMovie = \App\Models\Movie::where('release_date', '<=', now())->inRandomOrder()->first();
+
+        // 4. Now Showing (Strictly Released)
+        $nowShowing = \App\Models\Movie::where('release_date', '<=', now())
+            ->latest('release_date')
+            ->take(8)
+            ->get();
+
+        // 5. Coming Soon (Strictly Future)
+        $comingSoon = \App\Models\Movie::where('release_date', '>', now())
+            ->orderBy('release_date', 'asc')
+            ->take(4)
+            ->get();
+
+        // 6. User's Favorite Genre
+        $favGenre = '-';
+        if ($bookingsCount > 0) {
+            $genres = $bookings->map(function($b) {
+                return $b->showtime->movie->genre ?? null;
+            })->filter()->countBy();
+            
+            $favGenre = $genres->sortDesc()->keys()->first() ?? '-';
+        }
+
+        return view('dashboard', compact('bookingsCount', 'latestBooking', 'totalSpent', 'featuredMovie', 'nowShowing', 'comingSoon', 'favGenre'));
     })->name('dashboard');
 
     Route::get('/booking/{showtime}', [App\Http\Controllers\BookingController::class, 'create'])->name('booking.create');
@@ -41,7 +77,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('movies', App\Http\Controllers\Admin\MovieController::class);
     Route::resource('showtimes', App\Http\Controllers\Admin\ShowtimeController::class);
     Route::resource('studios', App\Http\Controllers\Admin\StudioController::class);
-    // Add logic for adding booking seat if needed, but usually admin manages showtimes/movies
 });
 
 require __DIR__.'/auth.php';

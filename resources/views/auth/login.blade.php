@@ -1,87 +1,71 @@
 <x-guest-layout>
-    <x-auth-card>
+    <!-- Header -->
+    <div class="mb-10">
+        <h1 class="text-4xl font-black text-cinema3-navy tracking-tight mb-2">Welcome Back</h1>
+        <p class="text-cinema3-navy/60 font-medium text-lg">Please enter your details to sign in.</p>
+    </div>
 
-        <x-slot name="logo">
-            <a href="{{ route('home') }}" class="inline-flex items-center justify-center">
-                <div class="rounded-2xl border border-cinema3-navy/10 bg-white shadow-md p-3">
-                    <x-application-logo class="h-14 w-14 object-contain" />
-                </div>
-            </a>
-        </x-slot>
+    <!-- Session Status -->
+    <x-auth-session-status class="mb-4" :status="session('status')" />
 
-        <!-- Session Status -->
-        <x-auth-session-status class="mb-4" :status="session('status')" />
+    <!-- Form -->
+    <form method="POST" action="{{ route('login') }}" class="space-y-6">
+        @csrf
 
         <!-- Validation Errors -->
         <x-auth-validation-errors class="mb-4" :errors="$errors" />
 
-        <div class="mb-6 text-center">
-            <h1 class="text-2xl font-semibold text-cinema3-navy">Welcome Back</h1>
-            <p class="mt-1 text-sm text-cinema3-navy/60">Sign in to continue.</p>
+        <!-- Email -->
+        <div class="space-y-2">
+            <x-label for="email" value="Email Address" class="text-cinema3-navy font-bold uppercase text-xs tracking-wider" />
+            <input id="email" type="email" name="email" :value="old('email')" required autofocus
+                   placeholder="name@example.com"
+                   class="block w-full rounded-2xl border-2 border-cinema3-navy/10 bg-white px-5 py-4 text-cinema3-navy font-bold placeholder-cinema3-navy/20 focus:border-cinema3-gold focus:ring focus:ring-cinema3-gold/20 transition-all outline-none" />
         </div>
 
-        <form method="POST" action="{{ route('login') }}">
-            @csrf
-
-            <!-- Email -->
-            <div>
-                <x-label for="email" value="Email" />
-                <x-input id="email" class="block mt-1 w-full"
-                         type="email" name="email" :value="old('email')" required autofocus />
-            </div>
-
-            <!-- Password (with eye) -->
-            <div class="mt-4" x-data="{ showPassword: false }">
-                <x-label for="password" value="Password" />
-
-                <div class="relative mt-1">
-                    <x-input id="password" class="block w-full pr-12"
-                             x-bind:type="showPassword ? 'text' : 'password'"
-                             name="password" required autocomplete="current-password" />
-
-                    <button type="button"
-                            @click="showPassword = !showPassword"
-                            class="absolute inset-y-0 right-0 flex items-center pr-3 text-cinema3-navy/50 hover:text-cinema3-navy"
-                            aria-label="Toggle password visibility">
-                        <span x-show="!showPassword">👁️</span>
-                        <span x-show="showPassword" style="display:none;">🙈</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Remember Me + Forgot -->
-            <div class="mt-4 flex items-center justify-between">
-                <label for="remember_me" class="inline-flex items-center">
-                    <input id="remember_me" type="checkbox"
-                           class="rounded border-gray-300 text-cinema3-gold shadow-sm focus:ring focus:ring-cinema3-gold/30"
-                           name="remember">
-                    <span class="ml-2 text-sm text-cinema3-navy/70">Remember me</span>
-                </label>
-
+        <!-- Password -->
+        <div class="space-y-2" x-data="{ show: false }">
+            <div class="flex items-center justify-between">
+                <x-label for="password" value="Password" class="text-cinema3-navy font-bold uppercase text-xs tracking-wider" />
                 @if (Route::has('password.request'))
-                    <a class="text-sm font-medium text-cinema3-navy/70 hover:text-cinema3-navy underline"
-                       href="{{ route('password.request') }}">
-                        Forgot your password?
+                    <a class="text-xs font-bold text-cinema3-navy/50 hover:text-cinema3-navy transition" href="{{ route('password.request') }}">
+                        Forgot Password?
                     </a>
                 @endif
             </div>
-
-            <!-- Button -->
-            <div class="mt-6">
-                <x-button class="w-full justify-center py-3 text-base">
-                    Log In
-                </x-button>
+            
+            <div class="relative">
+                <input id="password" :type="show ? 'text' : 'password'" name="password" required autocomplete="current-password"
+                       placeholder="••••••••"
+                       class="block w-full rounded-2xl border-2 border-cinema3-navy/10 bg-white px-5 py-4 text-cinema3-navy font-bold placeholder-cinema3-navy/20 focus:border-cinema3-gold focus:ring focus:ring-cinema3-gold/20 transition-all outline-none" />
+                <button type="button" @click="show = !show" class="absolute right-5 top-1/2 -translate-y-1/2 text-cinema3-navy/30 hover:text-cinema3-navy transition">
+                    <span x-show="!show" class="text-sm font-bold">SHOW</span>
+                    <span x-show="show" class="text-sm font-bold" style="display:none;">HIDE</span>
+                </button>
             </div>
+        </div>
 
-            <!-- Create account link -->
-            @if (Route::has('register'))
-                <p class="mt-6 text-center text-sm text-cinema3-navy/70">
-                    Don’t have an account?
-                    <a href="{{ route('register') }}" class="font-semibold text-cinema3-gold hover:text-cinema3-goldDark underline">
-                        Create one!
-                    </a>
-                </p>
-            @endif
-        </form>
-    </x-auth-card>
+        <!-- Remember Me -->
+        <div class="block">
+            <label for="remember_me" class="inline-flex items-center group cursor-pointer">
+                <input id="remember_me" type="checkbox" name="remember" class="rounded border-cinema3-navy/20 text-cinema3-navy shadow-sm focus:border-cinema3-gold focus:ring focus:ring-cinema3-gold/20 focus:ring-opacity-50">
+                <span class="ml-2 text-sm text-cinema3-navy/70 font-medium group-hover:text-cinema3-navy transition">Remember me</span>
+            </label>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="w-full rounded-2xl bg-cinema3-navy py-4 text-lg font-bold text-white shadow-xl shadow-cinema3-navy/30 hover:bg-cinema3-navySoft hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-300">
+            Sign In
+        </button>
+
+        <!-- Register Link -->
+        <div class="text-center pt-4">
+            <p class="text-sm text-cinema3-navy/60 font-medium">
+                Don't have an account? 
+                <a href="{{ route('register') }}" class="text-cinema3-navy font-black underline decoration-2 decoration-cinema3-gold hover:text-cinema3-goldDark transition-colors">
+                    Register for free
+                </a>
+            </p>
+        </div>
+    </form>
 </x-guest-layout>
