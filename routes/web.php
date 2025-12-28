@@ -79,31 +79,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('studios', App\Http\Controllers\Admin\StudioController::class);
 });
 
-require __DIR__.'/auth.php';
-
-// --- TEMPORARY MIGRATION ROUTE (Delete after use) ---
-Route::get('/init-db', function () {
-    try {
-        \Illuminate\Support\Facades\Artisan::call('migrate:fresh --seed --force');
-        return '<h1>Database Migrated & Seeded Successfully!</h1><br><pre>' . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
-    } catch (\Exception $e) {
-        return '<h1>Error!</h1><pre>' . $e->getMessage() . '</pre>';
-    }
-});
-
-Route::get('/debug-logo', function () {
+// --- Fallback Logo Serving (Vercel Fix) ---
+Route::get('/images/logo.png', function () {
     $path = public_path('images/logo.png');
-    $exists = file_exists($path);
-    
-    // Attempt to serve directly to test readability
-    if (request()->has('serve') && $exists) {
+    if (file_exists($path)) {
         return response()->file($path);
     }
-
-    return response()->json([
-        'path' => $path,
-        'exists' => $exists,
-        'asset_url' => asset('images/logo.png'),
-        'dir_files' => is_dir(public_path('images')) ? scandir(public_path('images')) : 'Dir not found',
-    ]);
+    abort(404);
 });
+
+require __DIR__.'/auth.php';
