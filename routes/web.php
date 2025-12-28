@@ -80,3 +80,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 });
 
 require __DIR__.'/auth.php';
+
+// --- TEMPORARY MIGRATION ROUTE (Delete after use) ---
+Route::get('/init-db', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate:fresh --seed --force');
+        return '<h1>Database Migrated & Seeded Successfully!</h1><br><pre>' . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
+    } catch (\Exception $e) {
+        return '<h1>Error!</h1><pre>' . $e->getMessage() . '</pre>';
+    }
+});
