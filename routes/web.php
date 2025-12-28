@@ -94,9 +94,16 @@ Route::get('/init-db', function () {
 Route::get('/debug-logo', function () {
     $path = public_path('images/logo.png');
     $exists = file_exists($path);
+    
+    // Attempt to serve directly to test readability
+    if (request()->has('serve') && $exists) {
+        return response()->file($path);
+    }
+
     return response()->json([
         'path' => $path,
         'exists' => $exists,
-        'dir_files' => $exists ? 'N/A' : scandir(public_path('images')),
+        'asset_url' => asset('images/logo.png'),
+        'dir_files' => is_dir(public_path('images')) ? scandir(public_path('images')) : 'Dir not found',
     ]);
 });
