@@ -23,11 +23,18 @@
                                 $movie = optional($showtime)->movie;
                                 $studio = optional($showtime)->studio;
                                 $start = optional($showtime)->start_time;
-                                $poster = optional($movie)->poster_url;
+
+                                $poster = null;
+                                if ($movie && $movie->poster) {
+                                    $poster = \Illuminate\Support\Str::startsWith($movie->poster, 'http')
+                                        ? $movie->poster
+                                        : asset('storage/' . $movie->poster);
+                                }
                             @endphp
 
                             <div class="group rounded-2xl border border-cinema3-navy/10 bg-white/90 shadow-sm hover:shadow-md transition overflow-hidden">
                                 <div class="p-6 flex flex-col md:flex-row gap-6">
+
                                     <!-- Poster -->
                                     <div class="w-full md:w-40">
                                         <div class="aspect-[2/3] rounded-xl overflow-hidden bg-cinema3-cream border border-cinema3-navy/10">
@@ -48,10 +55,20 @@
                                                 <h3 class="text-xl font-bold text-cinema3-navy">
                                                     {{ optional($movie)->title ?? 'Movie' }}
                                                 </h3>
+
                                                 <p class="mt-1 text-sm text-cinema3-navy/60">
                                                     {{ $start ? \Carbon\Carbon::parse($start)->format('D, d M Y • H:i') : '-' }}
                                                     • Studio: {{ optional($studio)->name ?? '-' }}
                                                 </p>
+
+                                                @if($start)
+                                                    <div
+                                                        class="mt-3 inline-flex items-center px-4 py-1.5 rounded-full bg-cinema3-navySoft/10 border border-cinema3-navy/10 text-sm font-semibold text-cinema3-navy countdown"
+                                                        data-start="{{ \Carbon\Carbon::parse($start)->toIso8601String() }}"
+                                                    >
+                                                        Loading...
+                                                    </div>
+                                                @endif
                                             </div>
 
                                             <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold
@@ -61,6 +78,7 @@
                                         </div>
 
                                         <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+
                                             <div class="rounded-xl bg-white border border-cinema3-navy/10 p-3">
                                                 <div class="text-cinema3-navy/50 text-xs font-semibold">Seats</div>
                                                 <div class="mt-1 font-bold text-cinema3-navy">
@@ -89,6 +107,7 @@
                                             </div>
                                         </div>
                                     </div>
+
                                 </div>
                             </div>
                         @endforeach
@@ -118,4 +137,45 @@
 
         </div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const countdownEls = document.querySelectorAll(".countdown");
+
+            const pad = (num) => String(num).padStart(2, "0");
+
+            function updateCountdown() {
+                countdownEls.forEach(el => {
+                    const startTime = new Date(el.dataset.start);
+                    const now = new Date();
+                    const diff = startTime - now;
+
+                    if (diff > 0) {
+                        const hours = Math.floor(diff / (1000 * 60 * 60));
+                        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                        const secs = Math.floor((diff % (1000 * 60)) / 1000);
+                   
+                        const isUrgent = diff < 5 * 60 * 1000;
+                        const textColor = isUrgent ? "text-red-600" : "text-cinema3-navy";
+
+                        el.innerHTML = `
+                            ⏳ <span class="text-cinema3-navy/60">Start in</span>
+                            <span class="font-bold ml-2 ${textColor}">
+                                ${pad(hours)}h ${pad(mins)}m ${pad(secs)}s
+                            </span>
+                        `;
+                    }
+                    else if (diff > -7200000) {
+                        el.innerHTML = `<span class="text-green-600 font-bold">🎬 Now Playing</span>`;
+                    }
+                    else {
+                        el.innerHTML = `<span class="text-gray-500 font-bold">✅ Finished</span>`;
+                    }
+                });
+            }
+
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        });
+    </script>
 </x-app-layout>
