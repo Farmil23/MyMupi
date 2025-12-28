@@ -90,3 +90,13 @@ Route::get('/init-db', function () {
         return '<h1>Error!</h1><pre>' . $e->getMessage() . '</pre>';
     }
 });
+
+Route::get('/debug-logo', function () {
+    $path = public_path('images/logo.png');
+    $exists = file_exists($path);
+    return response()->json([
+        'path' => $path,
+        'exists' => $exists,
+        'dir_files' => $exists ? 'N/A' : scandir(public_path('images')),
+    ]);
+});
