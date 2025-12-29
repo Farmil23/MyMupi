@@ -9,7 +9,7 @@ class HomeController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Movie::query();
+        $query = Movie::with('showtimes');
 
         if ($request->filled('search')) {
             $query->where('title', 'like', '%' . $request->search . '%');
@@ -20,8 +20,6 @@ class HomeController extends Controller
         }
 
         $movies = $query->latest()->get();
-        
-        // Get unique genres for filter
         $genres = Movie::select('genre')->distinct()->pluck('genre');
 
         return view('welcome', compact('movies', 'genres'));
