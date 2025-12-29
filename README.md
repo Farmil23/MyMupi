@@ -34,7 +34,7 @@
 
 ---
 
-## 🎬 About
+## 🎬 About 
 
 **MyMupi** is a web-based application designed to simulate a complete cinema ticket booking experience. Built as a final project for the **Web Programming** course, it adheres to modern web standards and design principles.
 
