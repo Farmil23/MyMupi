@@ -1,27 +1,88 @@
-# 🎬 MyMupi - Online Movie Ticket Booking
+Project ini dibuat untuk memenuhi penilaian **UAS** mata kuliah **Pemrograman Web**.
 
-MyMupi adalah aplikasi web pemesanan tiket bioskop online yang dibuat menggunakan Laravel.  
-Pengguna dapat melihat daftar film yang sedang tayang, memilih jadwal tayang (showtime), memilih kursi, melakukan booking, dan melihat e-ticket.
+# 🎬 MyMupi — Online Movie Ticket Booking (English UI)
+
+**MyMupi** adalah aplikasi web pemesanan tiket bioskop online berbasis **Laravel**.  
+Website ini mensimulasikan pengalaman booking tiket bioskop dari awal sampai akhir: **cari film → pilih showtime → pilih kursi → konfirmasi → dapat e-ticket**.
+
+> 🌍 **Note:** Seluruh tampilan UI dan teks pada website dibuat dalam **Bahasa Inggris** (English UI) untuk memberi kesan lebih profesional dan konsisten.
 
 ---
 
-## ✨ Features
+## 📌 Project Overview
 
-✅ User:
-- Register & Login
-- Browse Movies
-- Filter film berdasarkan genre & pencarian
-- Lihat detail film & showtimes
-- Pilih kursi dan booking tiket
-- Lihat tiket yang sudah dibeli (My Tickets)
-- Countdown timer "Start In" untuk showtime
-- Download/lihat e-ticket
-- Edit profile dan password
+MyMupi memiliki dua peran utama:
 
-✅ Admin:
-- CRUD Movies
-- CRUD Studios
-- CRUD Showtimes
+- **User (Customer)**: Menjelajah film, melihat detail & showtimes, memilih kursi, melakukan booking, melihat tiket yang sudah dibeli, serta mengelola profil.
+- **Admin (Cinema Manager)**: Mengelola data master seperti **Movies, Studios, dan Showtimes** melalui halaman admin (CRUD).
+
+Dengan desain bertema cinema (navy–gold–cream), MyMupi fokus pada:
+- tampilan modern & konsisten,
+- alur booking yang jelas,
+- pengalaman pengguna yang nyaman.
+
+---
+
+## ✨ Key Features
+
+### ✅ User Features
+- **Authentication**
+  - Register & Login
+  - Logout
+- **Explore Movies**
+  - Browse movie list (Now Showing)
+  - Search by title
+  - Filter by genre
+  - Section tambahan **Coming Soon** (film yang belum rilis)
+- **Movie Details**
+  - View poster, genre, duration, rating
+  - Read synopsis
+  - View available showtimes
+- **Booking Flow**
+  - Select showtime
+  - Select seats (seat map style bioskop + screen indicator + aisle)
+  - Confirm booking
+  - Success page menampilkan **E-ticket**
+- **My Tickets**
+  - Melihat riwayat booking/tiket yang sudah dibeli
+- **Showtime Countdown**
+  - Countdown “Start In” untuk showtime yang akan dimulai
+- **Profile**
+  - Edit profile information
+  - Update password
+  - Upload avatar / profile picture
+
+---
+
+### ✅ Admin Features
+- **Movies Management (CRUD)**
+  - Create, Read, Update, Delete movie
+  - Upload / set poster
+- **Studios Management (CRUD)**
+  - Create, Read, Update, Delete studio
+- **Showtimes Management (CRUD)**
+  - Create, Read, Update, Delete showtimes
+  - Menghubungkan movie + studio + waktu tayang + harga
+
+---
+
+## 🧠 User Flow (Alur Penggunaan)
+
+**1) Home / Landing Page**
+- User melihat film (Now Showing / Coming Soon)
+- User bisa search & filter genre
+
+**2) Movie Detail**
+- User melihat detail film + daftar showtimes
+
+**3) Booking**
+- User memilih showtime
+- User memilih kursi (seat map)
+- User konfirmasi booking
+
+**4) Ticket**
+- Setelah booking berhasil, user mendapat e-ticket
+- Ticket tersimpan dan bisa dilihat kembali di **My Tickets**
 
 ---
 
@@ -30,14 +91,14 @@ Pengguna dapat melihat daftar film yang sedang tayang, memilih jadwal tayang (sh
 - **Backend**: Laravel (PHP)
 - **Frontend**: Blade Template + Tailwind CSS (CDN)
 - **Interactivity**: JavaScript + AlpineJS
-- **Database**: MySQL (Laragon / phpMyAdmin)
+- **Database**: MySQL (Laragon / phpMyAdmin / HeidiSQL)
 - **Version Control**: Git & GitHub
 
 ---
 
 ## 📂 Installation (Local)
 
-1. Clone repository
+### 1) Clone Repository
 ```bash
 git clone https://github.com/Farmil23/MyMupi.git
 cd MyMupi
