@@ -1,5 +1,20 @@
 Project ini dibuat untuk memenuhi penilaian **UAS** mata kuliah **Pemrograman Web**.
 
+Anggota Kelompok -->
+1. Zeta Mardhotillah Ronny (152024047)
+2. Farhan Kamil Hermansyah (152024150)
+3. Ratu Qolbu Maziah (152024151)
+
+---
+# Link Icon
+
+![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-00000F?style=for-the-badge&logo=mysql&logoColor=white)
+![Alpine.js](https://img.shields.io/badge/Alpine.js-8BC0D0?style=for-the-badge&logo=alpinedotjs&logoColor=white)
+
+---
+
 # 🎬 MyMupi — Online Movie Ticket Booking (English UI)
 
 **MyMupi** adalah aplikasi web pemesanan tiket bioskop online berbasis **Laravel**.  
