@@ -66,7 +66,7 @@ The platform provides a seamless flow for users: **Search Movie** → **Select S
 | **Booking (Seat Selection)** | **Admin Dashboard** |
 | <img src="public/images/booking.png" alt="Booking" width="400"> | <img src="public/images/admin.png" alt="Admin Dashboard" width="400"> |
 
-> *Note: Add screenshots to `public/images/` with the names above to display them here.*
+
 
 ---
 
